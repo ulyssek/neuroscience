@@ -25,7 +25,7 @@ class Network():
 		#CONSTANTS
 		self._default_current_functions = []
 		self._default_current_functions.append(lambda x : 8*pow(10,2))
-		self._default_current_functions.append(lambda x : 8*pow(10,2) if x > 10 else 0)
+		self._default_current_functions.append(lambda x : 8*pow(10,2) if x > 5 and x < 5*pow(10,4)else 0)
 		self._default_current_functions.append(lambda x : 10 if (x % 100 == 0) else 0)
 		self._time_window = time_window # number of time step wich will be executed [step]
 		
