@@ -7,7 +7,7 @@ from time import time
 
 time_1 = time()
 
-n = Network(time_window = pow(10,5))
+n = Network(time_window = pow(10,4))
 n.add_neuron()
 n.add_neuron()
 n.link_neurons(2,1)
