@@ -213,5 +213,5 @@ def smart_plot(liste):
 	plt.show()
 
 def spike_function(frequency, phase = 0):
-	return lambda x : 1 if ( (x - phase) % frequency == 0 ) else 0
+	return lambda x : pow(10,7) if ( (x - phase) % frequency == 0 ) else 0
 

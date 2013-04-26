@@ -63,7 +63,7 @@ class Neuron():
 		self._received_current = current 
 		self._update_potential(current)
 		if (self.potential >= self.th) or spike:
-			print "%s potential : %s, VT : %s, current : %s " % (self.name, self.potential, self.VT, current)
+			#print "%s potential : %s, VT : %s, current : %s " % (self.name, self.potential, self.VT, current)
 			self._spike()
 		result = (self.potential, self._fired)
 		if self.version == 2:
