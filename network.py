@@ -17,17 +17,17 @@ from __init__ import *
 
 class Network():
 
-	def __init__(self):
+	def __init__(self, time_window = 1000):
 
 		#CONFIG VAR
 		self._version = 2
 
 		#CONSTANTS
 		self._default_current_functions = []
-		self._default_current_functions.append(lambda x : 8*pow(10,-10))
-		self._default_current_functions.append(lambda x : 5*pow(10,-9) if x > 40 else 0)
+		self._default_current_functions.append(lambda x : 8*pow(10,2))
+		self._default_current_functions.append(lambda x : 8*pow(10,2) if x > 10 else 0)
 		self._default_current_functions.append(lambda x : 10 if (x % 100 == 0) else 0)
-		self._time_window = 6000 # number of time step wich will be executed [step]
+		self._time_window = time_window # number of time step wich will be executed [step]
 		
 		#CLASS VARIABLES
 		self.neuron_list = []
@@ -213,5 +213,5 @@ def smart_plot(liste):
 	plt.show()
 
 def spike_function(frequency, phase = 0):
-	return lambda x : pow(10,7) if ( (x - phase) % frequency == 0 ) else 0
+	return lambda x : pow(10,7) if ( (x - (phase/DELTA_T)) % (frequency/DELTA_T) == 0 ) else 0
 
