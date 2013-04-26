@@ -13,24 +13,24 @@ class Neuron():
 
 
 		#CONSTANTS
-		self._tau             = 5*pow(10,-3)
-		self._firing_tau      = pow(10,-2)
-		self._resistance      = 1
+		self._tau 		= 5 	# time constant [ms]
+		self._firing_tau      	= 10 	# time constant [ms]
 	
 		#CLAUDIA CONSTANTS
-		self.C		= 281*pow(10, -12)  # Membrane capacitance (F)
-		self.gL       	= 30*pow(10, -9)    # Leak conducatance (S)
-		self.EL       	= -70.6*pow(10,-3)  # Resting Potential (V)
-		self.deltaT   	= 2*pow(10,-3)      # slope (V)
-		self.tau_wad  	= 144*pow(10,-3)    # wad time constant adaptation (s)
-		self.tau_z    	= 40*pow(10,-3)     # z time constant adaptation (s)
-		self.tau_VT   	= 50*pow(10,-3)     # VT time constant adaptation (s)
-		self.b        	= 0.805*pow(10,-12) # wad increaser (A)
-		self.a        	= 4*pow(10,-9)      # wad parameter (S)
-		self.Isp      	= 400*pow(10,-12)   # after spike z current (A)
-		self.VTrest   	= -50.4*pow(10,-3)  # resting threshold (V)
-		self.VTmax    	= -30.4*pow(10,-3)   # maximum threshold (V)
-		self.Vf		= 100*pow(10,-3)    # firing potential (V)
+		self.C		= 281  		# Membrane capacitance [pF]
+		self.gL       	= 30    	# Leak conducatance [nS]
+		self.EL       	= -70.6		# Resting Potential [mV]
+		self.deltaT   	= 2     	# slope [mV]
+		self.tau_wad  	= 144   	# wad time constant adaptation [ms]
+		self.tau_z    	= 40    	# z time constant adaptation [ms]
+		self.tau_VT   	= 50    	# VT time constant adaptation [ms]
+		self.b        	= 0.805 	# wad increaser [pA]
+		self.a        	= 4     	# wad parameter [nS]
+		self.Isp      	= 400   	# after spike z current [pA]
+		self.VTrest   	= -50.4  	# resting threshold [mV]
+		self.VTmax    	= -30.4   	# maximum threshold [mV]
+		self.Vf		= 100    	# firing potential [mV]
+		self.th		= 20		# fix threshold [mV]
 
 		self._nb_average      = 10
 
@@ -50,9 +50,9 @@ class Neuron():
 		self._pre_synaps_list  = []
 
 		#CLAUDIA CLASS VARS
-		self.wad	= 0 # hyperpolarization current
-		self.z   	= 0 # leak current
-		self.VT  	= 0.01 # threshold potential
+		self.wad	= 0 	# hyperpolarization current [pA]
+		self.z   	= 0 	# leak current [pA]
+		self.VT  	= 10 	# threshold potential [mV]
 
 	def run(self, current = 0, spike = False):
 		self._fired = 0
@@ -62,8 +62,8 @@ class Neuron():
 			current += sum(map(lambda x : x.get_current(), self._pre_synaps_list))
 		self._received_current = current 
 		self._update_potential(current)
-		if (self.potential >= 20*pow(10,-3)) or spike:
-			#print "%s potential : %s, VT : %s, current : %s " % (self.name, self.potential, self.VT, current)
+		if (self.potential >= self.th) or spike:
+			print "%s potential : %s, VT : %s, current : %s " % (self.name, self.potential, self.VT, current)
 			self._spike()
 		result = (self.potential, self._fired)
 		if self.version == 2:
@@ -162,5 +162,5 @@ class Neuron():
 	def _spike(self):
 		#print "%s spike ! " % self.name
 		self._fired    = 1
-		self.potential = self.EL + 22*pow(10,-3)
+		self.potential = self.EL + 22 # Claudia constant... what is this ?? [mV]
 

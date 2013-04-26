@@ -27,7 +27,7 @@ class Network():
 		self._default_current_functions.append(lambda x : 8*pow(10,-10))
 		self._default_current_functions.append(lambda x : 5*pow(10,-9) if x > 40 else 0)
 		self._default_current_functions.append(lambda x : 10 if (x % 100 == 0) else 0)
-		self._time_window = 6000
+		self._time_window = 6000 # number of time step wich will be executed [step]
 		
 		#CLASS VARIABLES
 		self.neuron_list = []

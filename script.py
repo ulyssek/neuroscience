@@ -21,6 +21,6 @@ n.run()
 print n.neuron_input_list
 #print "input neuron 1 : %s " % n.neuron_input_list[1](1)
 #print "input neuron 0 : %s " % n.neuron_input_list[0](1)
-n.draw_synaps_graph("weight")
-#n.draw_neuron_graph("potential")
+#n.draw_synaps_graph("weight")
+n.draw_neuron_graph("threshold")
 print len(n.neuron_data[0]["potential"])

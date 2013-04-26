@@ -9,21 +9,21 @@ class Synaps():
 	def __init__(self, post_neuron, pre_neuron, inhib = False, version = 1):
 
 		#CONFIG VAR
-		self._firing_multiplicator 	= 2*pow(10,-7)
+		self._firing_multiplicator 	= 1#2*pow(10,-7)
 		self._x_firing_multiplicator 	= 1
 		self._version 		   	= version 
 
 		#CONSTANT
 		self._delta_t = DELTA_T
-		self._tau     = pow(10,-2)
-		self.IR       = 0 # Resting intensity (V)
+		self._tau     = 10 	# time constant (ms) 
+		self.IR       = 0 	# Resting intensity (mV)
 		if inhib:
 			self._inhib = -1
 		else:
 			self._inhib = 1
 
-		self.R	= 1 # Resistance (Ohm)
-		self.w	= 1 # Weitgh (No unit) 
+		self.R	= 1 	# Resistance (Ohm)
+		self.w	= 0.5 	# Weitgh (No unit) 
 
 		
 		self.post_neuron = post_neuron
@@ -31,16 +31,16 @@ class Synaps():
 
 
 		#CLAUDIA CONSTANTS
-		self._theta_minus	= -70.6*pow(10,-3)	# low pass filtered threshold (V)
-		self._theta_plus	= -45.3*pow(10,-3)	# potential threshold (V)
-		self._ALTD		= 14*pow(10,-5)		# amplitude parameter (V-1)
-		self._ALTP		= 8*pow(10,-2) 		# amplitude parameter(V-1)
-		self._tau_x		= 15*pow(10,-3)		# x time constant (s)
-		self._tau_minus		= 10*pow(10,-3)		# w_minus time constant (s)
-		self._tau_plus		= 7*pow(10,-3)		# w_plus time constant (s)
+		self._theta_minus	= -70.6		# low pass filtered threshold (mV)
+		self._theta_plus	= -45.3		# potential threshold (mV)
+		self._ALTD		= 14*pow(10,-5)	# amplitude parameter (mV-2)
+		self._ALTP		= 8*pow(10,-5) 	# amplitude parameter(mV-1)
+		self._tau_x		= 15		# x time constant (ms)
+		self._tau_minus		= 10		# w_minus time constant (ms)
+		self._tau_plus		= 7		# w_plus time constant (ms)
 		self._w_min		= 0 			
 		self._w_max		= 100
-		self._C			= 281*pow(10,-12)	# membrane capacitance
+		self._C			= 281		# membrane capacitance (pF)
 
 		#CLASS VARIABLES
 		self.I      = self.IR # Potential (A)
