@@ -24,18 +24,19 @@ class Network():
 
 		#CONSTANTS
 		self._default_current_functions = []
-		self._default_current_functions.append(lambda x : pow(10,3))
-		self._default_current_functions.append(lambda x : pow(10,3) if x > 5 else 0)
+		self._default_current_functions.append(lambda x : 9.5*pow(10,2))
+		self._default_current_functions.append(lambda x : 9.5*pow(10,2) if x > 5 else 0)
 		self._default_current_functions.append(lambda x : 10 if (x % 100 == 0) else 0)
 		self._time_window = time_window # number of time step wich will be executed [step]
 		
 		#CLASS VARIABLES
-		self.neuron_list = []
-		self.synaps_list = []
+		self.neuron_list 	= []
+		self.synaps_list 	= []
 
-		self.stimulated_neurons = []
 
-		self.neuron_input_list = []
+		self.neuron_input_list 	= []
+
+		self.flag_dict		= {} # This dictionary will contain several list of flaged neurons
 
 		#DATA
 		self.neuron_data 	= []
@@ -58,6 +59,7 @@ class Network():
 				"dw_plus" 		: Synaps.get_dw_plus,
 				"dw_minus" 		: Synaps.get_dw_minus,
 			}
+		self.spike_number	= []
 
 		#ANALYTICS VAR
 		self.time_spent = {
@@ -69,33 +71,17 @@ class Network():
 	def run(self):
 		for t in xrange(self._time_window):
 
-			time_1 = time()	
-
+			#Neurons update
 			for neuron_id in xrange(self.get_neuron_number()):
 				current = self.neuron_input_list[neuron_id](t)		
 				self.neuron_list[neuron_id].run(current = current)
-			time_2 = time()
 
+			#Synaps update
 			for synaps in self.synaps_list:
 				synaps.run()
 
-			time_3 = time()
 
 			self.collect_data()
-
-			time_4 = time()
-
-			self.time_spent["run_neuron"].append(time_2-time_1)
-			self.time_spent["run_synaps"].append(time_3-time_2)
-			self.time_spent["collect_data"].append(time_4-time_3)
-
-		print self.time_spent["collect_data"][self._time_window-1]
-		self.time_spent["run_neuron"] = sum(self.time_spent["run_neuron"])/self._time_window
-		self.time_spent["run_synaps"] = sum(self.time_spent["run_synaps"])/self._time_window
-		self.time_spent["collect_data"] = sum(self.time_spent["collect_data"])/self._time_window
-
-		print self.time_spent
-		
 
 
 	##################################################################
@@ -108,6 +94,17 @@ class Network():
 
 	def get_time_window(self):
 		return self._time_window
+
+	def get_last_value(self, item_id, value_key, item = 0):
+		#item is either a neuron(0) or a synaps(1)
+		if item == 0:
+			value_list = self.neuron_data[item_id][value_key]
+			return value_list[len(value_list)-1]
+		elif item == 1:
+			value_list = self.synaps_data[item_id][value_key]
+			return value_list[len(value_list)-1]
+		else:
+			raise("Item value %s doesn't exist" % item)
 		
 		
 	##################################################################
@@ -130,6 +127,8 @@ class Network():
 			for key in self.neuron_functions.keys():
 				foo = self.neuron_functions[key]
 				self.neuron_data[neuron_id][key].append(foo(self.neuron_list[neuron_id]))
+			if self.neuron_list[neuron_id].get_fired():
+				self.spike_number[neuron_id] += 1
 		for synaps_id in xrange(self.get_synaps_number()):
 			for key in self.synaps_functions.keys():
 				foo = self.synaps_functions[key]
@@ -160,25 +159,26 @@ class Network():
 		dico = self.get_synaps_dict()
 		self.synaps_data.append(dico)
 
-	def add_neuron(self, passive = False):
-		neuron = Neuron(version = 2, name = ("Neuron number %s" % (self.get_neuron_number()+1)), passive = passive)
+	def add_neuron(self, passive = False, flag = None):
+		neuron_id = self.get_neuron_number()
+		neuron = Neuron(version = 2, name = ("Neuron number %s" % (neuron_id+1)), passive = passive)
 		self.neuron_list.append(neuron)
 		dico = self.get_neuron_dict()
 		self.neuron_data.append(dico)
+		self.spike_number.append(0)
 		self.neuron_input_list.append(lambda x : 0)
+		if flag is not None:
+			if not flag in self.flag_dict.keys():
+				self.flag_dict[flag] = []
+			self.flag_dict[flag].append(neuron_id)
 
 	def impose_current(self, neuron_id, current_id = 1, current_function = None):
 		if not self.valid_id(neuron_id): 
 			self.print_error_message()
 			return
-		self.stimulated_neurons.append(neuron_id)
 		if current_function is None:
 			current_function = self._default_current_functions[current_id-1]
 		self.neuron_input_list[neuron_id-1] = current_function
-		"""
-		except IndexError:
-			self.neuron_input_list[neuron_id-1] = (self._default_current_functions[0])
-		"""
 
 
 	##################################################################
@@ -196,22 +196,28 @@ class Network():
 		else:
 			smart_plot(map(lambda x : x[graph_key], self.neuron_data))
 
-	
-
 
 
 	# END OF CLASS
 	##################################################################
 
 
-def smart_plot(liste):
+def smart_plot(liste, x_list = None):
 	color = ("r--", "b--", "g--", "y--", "o--")
-	args = ()
-	for key in xrange(len(liste)):
-		args += (range(len(liste[key])), liste[key], color[key])
-	plt.plot(*args)
-	plt.show()
+	if x_list is None:
+		args = ()
+		for key in xrange(len(liste)):
+			args += (range(len(liste[key])), liste[key], color[key])
+		plt.plot(*args)
+		plt.show()
+	else:
+		args = (x_list, liste, color[0])
+		plt.plot(*args)
+		plt.show()
 
-def spike_function(frequency, phase = 0):
+def spike_function(frequency = 100, phase = 0):
 	return lambda x : pow(10,7) if ( (x - (phase/DELTA_T)) % (frequency/DELTA_T) == 0 ) else 0
+
+def constant_current_function(intensity = 9.5*pow(10,2), phase = 0):
+	return lambda x : intensity if x > phase else 0
 

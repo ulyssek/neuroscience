@@ -29,7 +29,7 @@ class Neuron():
 		self.Isp      	= 400   	# after spike z current [pA]
 		self.VTrest   	= -50.4  	# resting threshold [mV]
 		self.VTmax    	= -30.4   	# maximum threshold [mV]
-		self.Vf		= 100    	# firing potential [mV]
+		self.Vf		= 32.862    	# firing potential [mV] (Claudia constant)
 		self.th		= 20		# fix threshold [mV]
 
 		self._nb_average      = 10
@@ -57,7 +57,7 @@ class Neuron():
 	def run(self, current = 0, spike = False):
 		self._fired = 0
 		if self.potential == self.Vf:
-			self.potential = self.EL
+			self.potential = self.EL+22
 		if not self.passive:
 			current += sum(map(lambda x : x.get_current(), self._pre_synaps_list))
 		self._received_current = current 
@@ -65,13 +65,9 @@ class Neuron():
 		if (self.potential >= self.th) or spike:
 			#print "%s potential : %s, VT : %s, current : %s " % (self.name, self.potential, self.VT, current)
 			self._spike()
-		result = (self.potential, self._fired)
 		if self.version == 2:
 			self._update_others_functions(self._fired)
-		self._update_fire()
 		self._update_firing_potential()
-
-		return result
 
 	def add_pre_synaps(self, synaps):
 		self._pre_synaps_list.append(synaps)
@@ -120,10 +116,6 @@ class Neuron():
 		self._update_leak_current(fired)
 		self._update_threshold(fired)
 
-	def _update_fire(self):
-		self._last_fired[self._current_index] = self._fired
-		self._current_index = (self._current_index + 1) % 2 
-
 	def _update_potential(self, current):
 		if self.version == 1:
 			delta_v = float(-self.potential + current*self._resistance)/float(self._tau)
@@ -162,5 +154,5 @@ class Neuron():
 	def _spike(self):
 		#print "%s spike ! " % self.name
 		self._fired    = 1
-		self.potential = self.EL + 22 # Claudia constant... what is this ?? [mV]
+		self.potential = self.Vf # Claudia constant... what is this ?? [mV]
 
