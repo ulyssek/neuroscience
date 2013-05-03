@@ -2,6 +2,8 @@
 
 
 from __init__ import *
+from timer import Timer
+from time import sleep
 
 class Neuron():
 

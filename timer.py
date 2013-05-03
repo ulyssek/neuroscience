@@ -2,32 +2,56 @@
 
 
 
-import time
+from time import time
+import matplotlib.pyplot as plt
+
 
 
 class Timer():
-
-
-	_STEP = 0.001
-
+	
 	def __init__(self):
-		self._action_list = []
+		self._time_list = []
+		self._last_time = None
+		self._time_dict = {}
 
-	def add_action(self, action):
-		self._action_list.append(action)
 
-	def add_action_list(self, action_list):
-		self._action_list.extend(action_list)
+	def clean(self):
+		self._time_list = []
 
-	def print_action_list(self):
-		print "number of action : %s " % len(self._action_list)
-		for action in self._action_list:
-			print "Action : %s " % action
+	def pick(self, flag=None):
+		if self._last_time is not None:
+			current_time = time()-self._last_time
+			self._time_list.append((current_time,flag))
+		self._last_time = time()
 
-	def run(self):
-		while(True):
-			for action in self._action_list:
-				action()
-			time.sleep(self._STEP)
-			print "loop"
 
+	def save(self):
+		for t, flag in self._time_list:
+			if flag is not None:
+				if flag not in self._time_dict.keys():
+					self._time_dict[flag] = []
+				self._time_dict[flag].append(t)
+
+	def prnt(self,average=0):
+		print "printing Timer : "
+		if not average:
+			for t, flag in self._time_list:
+				if flag is not None:
+					print "%s : %s" % (flag, t)
+				else:
+					print "%s" % t
+		else:
+			for flag in self._time_dict.keys():
+				_sum = sum(self._time_dict[flag])
+				avg = _sum/len(self._time_dict[flag])
+				print "avg %s : %s" % (flag, avg)
+				print "sum %s : %s" % (flag, _sum)
+
+	def draw(self):
+		color = "r--"
+		time_list = []
+		for t, flag in self._time_list:
+			time_list.append(t)
+		args = (range(len(time_list)), time_list, color)
+		plt.plot(*args)
+		plt.show()

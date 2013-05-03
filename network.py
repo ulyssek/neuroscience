@@ -2,8 +2,8 @@
 
 
 
+from timer import Timer
 from random import randint
-from time import time
 import numpy
 
 from neuron import Neuron
@@ -69,19 +69,27 @@ class Network():
 			}
 
 	def run(self):
-		for t in xrange(self._time_window):
+		ti = Timer()
+		for t in xrange(int(self._time_window)):
 
+			ti.pick()
 			#Neurons update
 			for neuron_id in xrange(self.get_neuron_number()):
 				current = self.neuron_input_list[neuron_id](t)		
 				self.neuron_list[neuron_id].run(current = current)
+			ti.pick("neuron update")
 
 			#Synaps update
 			for synaps in self.synaps_list:
 				synaps.run()
+			ti.pick("synaps_update")
 
 
 			self.collect_data()
+			ti.pick("collect data")
+			ti.save()
+			ti.clean()
+		#ti.prnt(1)
 
 
 	##################################################################
@@ -179,6 +187,14 @@ class Network():
 		if current_function is None:
 			current_function = self._default_current_functions[current_id-1]
 		self.neuron_input_list[neuron_id-1] = current_function
+	
+	def impose_current_to_group(self, flag, current_id = 1, current_function = None):
+		for neuron_id in self.flag_dict[flag]:
+			self.impose_current(neuron_id+1, current_id = current_id, current_function = current_function)
+
+	def clean_current(self):
+		for key in xrange(len(self.neuron_input_list)):
+			self.neuron_input_list[key] = (lambda x : 0) 
 
 
 	##################################################################
@@ -207,7 +223,7 @@ def smart_plot(liste, x_list = None):
 	if x_list is None:
 		args = ()
 		for key in xrange(len(liste)):
-			args += (range(len(liste[key])), liste[key], color[key])
+			args += (range(len(liste[key])), liste[key], color[key % len(color)])
 		plt.plot(*args)
 		plt.show()
 	else:

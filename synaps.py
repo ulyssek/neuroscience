@@ -102,7 +102,7 @@ class Synaps():
 			delta_I = float((self.IR-self.I) + self._firing_multiplicator*self._fired)/float(self._tau)
 			self.I  = max(self.I + delta_I*self._delta_t, self.IR)
 		else:
-			self.I = self.w*self._C*self._fired
+			self.I = self.w*self._C*self._fired*10
 
 	def _update_minus(self):
 		delta_minus	 = float(-self._u_minus + self.get_post_synaptic_potential())/float(self._tau_minus)

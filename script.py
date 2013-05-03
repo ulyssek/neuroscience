@@ -81,7 +81,7 @@ def one_neuron_network(neuron_number = 1, option = 0, link_neurons = []):
 	n.run()
 	n.draw_neuron_graph("potential")
 
-one_neuron_network()
+one_neuron_network(neuron_number = 5)
 """
 for i in xrange(nb_step):
 	n = Network(time_window = time_window)
