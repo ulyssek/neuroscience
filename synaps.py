@@ -41,17 +41,20 @@ class Synaps():
 		self._w_min		= 0 			
 		self._w_max		= 100
 		self._C			= 281		# membrane capacitance (pF)
+		self._tau_barbar 	= pow(10,3)	# u_barbar time constant (ms)
+		self._u_ref_square	= 321.5 		# potential reference value (mV2) 
 
 		#CLASS VARIABLES
 		self.I      = self.IR # Potential (A)
 		self._fired = 0 
 
 		#CLAUDIA CLASS VARS
-		self._u_minus	= self.post_neuron.get_resting_potential() # u LOW PASS FILTERED (V)
-		self._u_plus	= 0 # u LOW PASS FILTERED (V)
+		self._u_minus	= self.post_neuron.get_resting_potential() # u LOW PASS FILTERED (mV)
+		self._u_plus	= 0 # u LOW PASS FILTERED (mV)
 		self._x		= 0 # spike low pass filtered
 		self._dw_plus	= 0 
 		self._dw_minus	= 0
+		self._u_barbar  = self.post_neuron.get_resting_potential() # u LOW PASS FILTERED (mV)
 
 	def run(self):
 		self._fired = self.pre_neuron.get_fired()
@@ -86,6 +89,9 @@ class Synaps():
 	def get_dw_minus(self):
 		return self._dw_minus
 
+	def get_u_barbar(self):
+		return self._u_barbar
+
 	##################################################################
 	# UPDATE FUNCTIONS 
 
@@ -93,6 +99,7 @@ class Synaps():
 		self._update_x()
 		self._update_minus()
 		self._update_plus()
+		self._update_u_barbar()
 		self._update_dw_minus()
 		self._update_dw_plus()
 		self._update_w()
@@ -102,22 +109,26 @@ class Synaps():
 			delta_I = float((self.IR-self.I) + self._firing_multiplicator*self._fired)/float(self._tau)
 			self.I  = max(self.I + delta_I*self._delta_t, self.IR)
 		else:
-			self.I = self.w*self._C*self._fired*10
+			self.I = self.w*self._C*self._fired*100
 
 	def _update_minus(self):
 		delta_minus	 = float(-self._u_minus + self.get_post_synaptic_potential())/float(self._tau_minus)
 		self._u_minus	 = self._u_minus + delta_minus*self._delta_t
 		
 	def _update_plus(self):
-		delta_plus	 = float(-self._u_plus + self.get_post_synaptic_potential())/float(self._tau_plus)
-		self._u_plus	 = self._u_plus + delta_plus*self._delta_t
+		delta_plus	= float(-self._u_plus + self.get_post_synaptic_potential())/float(self._tau_plus)
+		self._u_plus	= self._u_plus + delta_plus*self._delta_t
+	
+	def _update_u_barbar(self):
+		delta_u 	= float(-self._u_barbar + self.get_post_synaptic_potential())/float(self._tau_barbar)
+		self._u_barbar = self._u_barbar +delta_u*self._delta_t
 
 	def _update_x(self):
 		delta_x		= float(-self._x +self._x_firing_multiplicator*self._fired)/float(self._tau_x)
 		self._x 	= max(self._x + delta_x*self._delta_t, 0)
 
 	def _update_dw_minus(self):
-		self._dw_minus	= self._ALTD*self._fired*max(self._u_minus - self._theta_minus, 0)
+		self._dw_minus	= self._ALTD*self._fired*max(self._u_minus - self._theta_minus, 0)*self._u_barbar*self._u_barbar/self._u_ref_square
 
 	def _update_dw_plus(self):
 		self._dw_plus	= self._ALTP*self._x*max(self._u_plus - self._theta_minus, 0)*max(self.get_post_synaptic_potential() - self._theta_plus, 0)

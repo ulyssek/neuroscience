@@ -11,11 +11,11 @@ from time import sleep
 ##################################################################
 #Constant
 
-time_window 	= pow(10,3)
-ex_neuron_nb	= 100 
-nb_group	= 10 
+time_window 	= 5*pow(10,5)
+ex_neuron_nb	= 2 
+nb_group	= 2 
 
-nb_round 	= 10 
+nb_round 	= 5 
 
 ##################################################################
 #Network creation
@@ -43,5 +43,6 @@ t.pick()
 #t.prnt()
 #n.draw_synaps_graph("dw_plus")
 n.draw_synaps_graph("weight")
+#n.draw_synaps_graph("u_barbar")
 #n.draw_neuron_graph("potential")
 #n.draw_neuron_graph("received_current", 1)

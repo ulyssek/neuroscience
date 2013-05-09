@@ -12,7 +12,7 @@ time_1 = time()
 
 nb_step = 50 
 weight_array = [] 
-time_window = 3*pow(10,2)
+time_window = pow(10,3)
 frequency_array = []
 
 
@@ -81,8 +81,7 @@ def one_neuron_network(neuron_number = 1, option = 0, link_neurons = []):
 	n.run()
 	n.draw_neuron_graph("potential")
 
-one_neuron_network(neuron_number = 5)
-"""
+#one_neuron_network(neuron_number = 5)
 for i in xrange(nb_step):
 	n = Network(time_window = time_window)
 	n.add_neuron()
@@ -102,11 +101,10 @@ for i in xrange(nb_step):
 #print "input neuron 1 : %s " % n.neuron_input_list[1](1)
 #print "input neuron 0 : %s " % n.neuron_input_list[0](1)
 #print n.get_last_value(0, "weight", item=1)
-n.draw_synaps_graph("weight")
+n.draw_synaps_graph("u_plus")
 #n.draw_neuron_graph("potential")
 #print n.spike_number
 #print len(n.neuron_data[0]["potential"])
 
-"""
 """
 """

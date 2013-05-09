@@ -58,6 +58,7 @@ class Network():
 				"post_potential" 	: Synaps.get_post_synaptic_potential,
 				"dw_plus" 		: Synaps.get_dw_plus,
 				"dw_minus" 		: Synaps.get_dw_minus,
+				"u_barbar"		: Synaps.get_u_barbar,
 			}
 		self.spike_number	= []
 
