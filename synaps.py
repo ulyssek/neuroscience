@@ -9,7 +9,7 @@ class Synaps():
 	def __init__(self, post_neuron, pre_neuron, inhib = False, version = 1):
 
 		#CONFIG VAR
-		self._firing_multiplicator 	= 1#2*pow(10,-7)
+		self._firing_multiplicator 	= 1
 		self._x_firing_multiplicator 	= 1
 		self._version 		   	= version 
 
@@ -42,7 +42,7 @@ class Synaps():
 		self._w_max		= 100
 		self._C			= 281		# membrane capacitance (pF)
 		self._tau_barbar 	= pow(10,3)	# u_barbar time constant (ms)
-		self._u_ref_square	= 321.5 		# potential reference value (mV2) 
+		self._u_ref_square	= 320.7 		# potential reference value (mV2) 
 
 		#CLASS VARIABLES
 		self.I      = self.IR # Potential (A)

@@ -15,26 +15,26 @@ class Neuron():
 
 
 		#CONSTANTS
-		self._tau 		= 5 	# time constant [ms]
-		self._firing_tau      	= 10 	# time constant [ms]
+		self._tau 		= 5 		# time constant [ms]
+		self._firing_tau      	= 10 		# time constant [ms]
 	
 		#CLAUDIA CONSTANTS
-		self.C		= 281  		# Membrane capacitance [pF]
-		self.gL       	= 30    	# Leak conducatance [nS]
-		self.EL       	= -70.6		# Resting Potential [mV]
-		self.deltaT   	= 2     	# slope [mV]
-		self.tau_wad  	= 144   	# wad time constant adaptation [ms]
-		self.tau_z    	= 40    	# z time constant adaptation [ms]
-		self.tau_VT   	= 50    	# VT time constant adaptation [ms]
-		self.b        	= 0.805 	# wad increaser [pA]
-		self.a        	= 4     	# wad parameter [nS]
-		self.Isp      	= 400   	# after spike z current [pA]
-		self.VTrest   	= -50.4  	# resting threshold [mV]
-		self.VTmax    	= -30.4   	# maximum threshold [mV]
-		self.Vf		= 32.862    	# firing potential [mV] (Claudia constant)
-		self.th		= 20		# fix threshold [mV]
+		self.C			= 281  		# Membrane capacitance [pF]
+		self.gL       		= 30    	# Leak conducatance [nS]
+		self.EL       		= -70.6		# Resting Potential [mV]
+		self.deltaT   		= 2     	# slope [mV]
+		self.tau_wad  		= 144   	# wad time constant adaptation [ms]
+		self.tau_z    		= 40    	# z time constant adaptation [ms]
+		self.tau_VT   		= 50    	# VT time constant adaptation [ms]
+		self.b        		= 0.805 	# wad increaser [pA]
+		self.a        		= 4     	# wad parameter [nS]
+		self.Isp      		= 400   	# after spike z current [pA]
+		self.VTrest   		= -50.4  	# resting threshold [mV]
+		self.VTmax    		= -30.4   	# maximum threshold [mV]
+		self.Vf			= 32.862    	# firing potential [mV] (Claudia constant)
+		self.th			= 20		# fix threshold [mV]
 
-		self._nb_average      = 10
+		self._nb_average      	= 10
 
 		#CLASS VARS
 		self._fired         		= 0

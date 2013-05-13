@@ -11,7 +11,7 @@ from time import sleep
 ##################################################################
 #Constant
 
-time_window 	= 5*pow(10,5)
+time_window 	= pow(10,3)
 ex_neuron_nb	= 2 
 nb_group	= 2 
 
@@ -40,9 +40,13 @@ for i in xrange(nb_round):
 	n.run()
 	n.clean_current()
 t.pick()
+
+##################################################################
+#Drawing
+
 #t.prnt()
 #n.draw_synaps_graph("dw_plus")
 n.draw_synaps_graph("weight")
-#n.draw_synaps_graph("u_barbar")
-#n.draw_neuron_graph("potential")
+n.draw_synaps_graph("u_barbar")
+#n.draw_neuron_graph("potential", 1)
 #n.draw_neuron_graph("received_current", 1)
