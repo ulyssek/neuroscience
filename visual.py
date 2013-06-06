@@ -8,45 +8,84 @@ from timer import Timer
 
 from time import sleep
 
-##################################################################
-#Constant
 
-time_window 	= pow(10,3)
-ex_neuron_nb	= 2 
-nb_group	= 2 
+def visual_network(ex_nb=3, in_nb=1, nb_group = 5, save_data=True, nb_round=100, time_window=5*pow(10,2)):
 
-nb_round 	= 5 
+	##################################################################
+	#Constant
 
-##################################################################
-#Network creation
+	neuron_per_group		= 33
 
-n = Network(time_window = time_window)
+	ex_neuron_number		= ex_nb 
+	inhib_neuron_number	= in_nb
 
 
-n.add_neuron(flag="receptive")
-for i in xrange(ex_neuron_nb):
-	n.add_neuron(flag=("activator_%s" % (i/(ex_neuron_nb/nb_group))))
-	n.link_neurons(1,i+2)
+	ex_nb_2	= 4
 
-##################################################################
-#Experiment
 
-t = Timer()
-for i in xrange(nb_round):
-	t.pick()
-	neuron_set = randint(0,nb_group-1)
-	n.impose_current_to_group(("activator_%s" % (neuron_set)), current_function =  spike_function(10))
+	##################################################################
+	#Network creation
 
-	n.run()
-	n.clean_current()
-t.pick()
+	n = Network(time_window = time_window, save_data = save_data)
 
-##################################################################
-#Drawing
+
+	for i in xrange(ex_neuron_number):
+		n.add_neuron(flags="receptive")
+	n.connect_group("receptive", synaps_flag="inter neuron")
+
+	for i in xrange(inhib_neuron_number):
+		neuron_id = n.add_neuron(flags=["receptive","inhib"], inhib=True)
+		n.link_neuron_to_group(neuron_id, "receptive",bidirectional=True,synaps_flags=["inter neuron","inhib"])
+
+
+	for i in xrange(nb_group):
+		neuron_id = n.add_neuron(flags=("activator %s" % i), neuron_number = neuron_per_group)
+		n.link_neuron_to_group(neuron_id,"receptive", rand=True, post=False, synaps_flags="input")
+
+
+	"""
+	for i in xrange(ex_nb_2):
+		neuron_id = n.add_neuron(flags="third line")
+		n.link_neuron_to_group(neuron_id, "receptive", rand=True, post=True, synaps_flags="second wave", synaps_multiplicator=neuron_per_group)
+	n.connect_group("third line", synaps_flag="third inter")
+	"""
+		
+
+
+	
+
+
+	##################################################################
+	#Experiment
+
+	def experiment():
+		for i in xrange(nb_round):
+			neuron_set = randint(0,nb_group-1)
+			n.impose_current_to_group(("activator %s" % (neuron_set)), current_function =  spike_function(10))
+
+			n.run()
+			n.clean_current()
+	n.set_experiment(experiment)
+		
+	##################################################################
+	#Drawing
+
+	graph = lambda : n.draw_synaps_graph(["weight"], flags="inter neuron")
+	n.add_graph(graph, name="inter")
+	graph = lambda : n.draw_synaps_graph(["weight"], flags="input")
+	n.add_graph(graph, name="input")
+	graph = lambda : n.draw_weight(flag="receptive")
+	n.add_graph(graph, name="square")
+	graph = lambda : n.draw_weight(range(n.get_neuron_number()))
+	n.add_graph(graph, name="all_weight")
+
+	return n
+
 
 #t.prnt()
 #n.draw_synaps_graph("dw_plus")
-n.draw_synaps_graph("weight")
-n.draw_synaps_graph("u_barbar")
+#n.draw_synaps_graph(["weight"], flags="inter neuron")
+#n.draw_synaps_graph(["weight"], flags=["neuron 1", "neuron 2", "neuron 3"])
+#n.draw_synaps_graph("u_barbar")
 #n.draw_neuron_graph("potential", 1)
 #n.draw_neuron_graph("received_current", 1)
