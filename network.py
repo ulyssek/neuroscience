@@ -111,7 +111,7 @@ class Network():
 			ti.pick("collect data")
 			ti.save()
 			ti.clean()
-		ti.prnt(1)
+		#ti.prnt(1)
 
 	def launch(self):
 		self.experiment[self._mode]()
@@ -246,7 +246,7 @@ class Network():
 				self.print_error_message()
 				return
 			if rand:
-				weight = normal(500,200)*0.5/500 
+				weight = normal(700,400)*0.5/700 
 			else:
 				weight = weight
 			synaps = Network.connect_neurons(self.neuron_list[id1],self.neuron_list[id2],weight=weight,name="Synaps number %s, connecting neuron %s and %s " % (synaps_id,id1,id2), synaps_multiplicator=synaps_multiplicator, plasticity = plasticity)

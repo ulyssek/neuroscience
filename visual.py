@@ -14,7 +14,7 @@ def visual_network(ex_nb=3, in_nb=1, nb_group = 5, save_data=True, nb_round=100,
 	##################################################################
 	#Constant
 
-	neuron_per_group		= 33
+	neuron_per_group		= 33 
 
 	ex_neuron_number		= ex_nb 
 	inhib_neuron_number	= in_nb
@@ -56,18 +56,6 @@ def visual_network(ex_nb=3, in_nb=1, nb_group = 5, save_data=True, nb_round=100,
 
 
 	##################################################################
-	#Experiment
-
-	def experiment():
-		for i in xrange(nb_round):
-			neuron_set = randint(0,nb_group-1)
-			n.impose_current_to_group(("activator %s" % (neuron_set)), current_function =  spike_function(10))
-
-			n.run()
-			n.clean_current()
-	n.set_experiment(experiment)
-		
-	##################################################################
 	#Drawing
 
 	graph = lambda : n.draw_synaps_graph(["weight"], flags="inter neuron")
@@ -79,6 +67,19 @@ def visual_network(ex_nb=3, in_nb=1, nb_group = 5, save_data=True, nb_round=100,
 	graph = lambda : n.draw_weight(range(n.get_neuron_number()))
 	n.add_graph(graph, name="all_weight")
 
+	##################################################################
+	#Experiment
+
+	def experiment():
+		for i in xrange(nb_round):
+			neuron_set = randint(0,nb_group-1)
+			n.impose_current_to_group(("activator %s" % (neuron_set)), current_function =  spike_function(10))
+
+			n.run()
+			n.clean_current()
+		n.draw("all_weight")
+	n.set_experiment(experiment)
+		
 	return n
 
 

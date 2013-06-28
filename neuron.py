@@ -51,7 +51,7 @@ class Neuron():
 		self._tau_x					= 15						# x time constant (ms)
 		self._tau_minus			= 10						# w_minus time constant (ms)
 		self._tau_plus			= 7							# w_plus time constant (ms)
-		self._tau_barbar 		= pow(10,3)			# u_barbar time constant (ms)
+		self._tau_barbar 		= pow(10,4)			# u_barbar time constant (ms)
 
 		#CLASS VARS
 		self._fired         				= 0
@@ -190,10 +190,12 @@ class Neuron():
 		self._update_firing_rate()
 
 	def _update_synaptic_functions(self):
-		self._update_x()
-		self._update_minus()
-		self._update_plus()
-		self._update_u_barbar()
+		if len(self._pre_synaps_list) > 0:
+			self._update_minus()
+			self._update_plus()
+			self._update_u_barbar()
+		if len(self._post_synaps_list) > 0:
+			self._update_x()
 
 	def _update_last_fired(self):
 		self._last_fired[self._fire_count] = self._fired
