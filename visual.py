@@ -52,11 +52,11 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
       n.link_neuron_to_group(neuron_id,"inhib", rand=True, post=False, synaps_flags=["input","inhib"])
     """
 
-  n.set_uref_square(54, "inter neuron")
-  n.set_uref_square(54, "input")
+  n.set_uref_square(45, "inter neuron")
+  n.set_uref_square(45, "input")
   n.set_max_weight(1, "inter neuron")
   try:
-    n.set_uref_square(100, ["inhib", "inter neuron"])
+    n.set_uref_square(120, ["inhib", "inter neuron"])
     n.set_max_weight(5, ["inhib", "inter neuron"])
   except KeyError:
     pass
