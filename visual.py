@@ -15,7 +15,7 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
   ##################################################################
   #Constant
 
-  neuron_per_group    = 5.5 
+  neuron_per_group    = 6 
 
   ex_neuron_number    = ex_nb 
   inhib_neuron_number  = in_nb
@@ -35,13 +35,12 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
   for i in xrange(ex_neuron_number):
     n.add_neuron(flags=["receptive","exci"])
   if ex_neuron_number != 0:
-    n.connect_group("receptive", synaps_flag=["inter neuron"], weight=0)
+    n.connect_group("receptive", synaps_flag=["inter neuron","plastic"], weight=0)
 
   for i in xrange(inhib_neuron_number):
     neuron_id = n.add_neuron(flags=["receptive","inhib"], inhib=True)
-    n.link_neuron_to_group(neuron_id, "receptive",post=True,synaps_flags=["inter neuron","inhib"], weight = 5)
-    n.link_neuron_to_group(neuron_id, "receptive",post=False,synaps_flags=["inter neuron","inhib"], weight = 5, plasticity=False)
-
+    n.link_neuron_to_group(neuron_id, "receptive",post=True,synaps_flags=["inter neuron","inhib","plastic"], weight = 5)
+    n.link_neuron_to_group(neuron_id, "receptive",post=False,synaps_flags=["inter neuron","inhib","inhib_to_exci"], weight = 5, plasticity=False)
 
   for i in xrange(nb_group):
     neuron_id = n.add_neuron(flags=("activator %s" % i), neuron_number = neuron_per_group)
@@ -102,14 +101,14 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
 
 
   def learning():
-    n.block_synaps("inter neuron")
+    n.block_synaps("plastic")
     #n.set_noise(False)
     for i in xrange(int(4*nb_round)):
       neuron_set = randint(0,nb_group-1)
       n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = spike_function(10))
       n.run()
       n.clean_current()
-    n.block_synaps("inter neuron", block=False)
+    n.block_synaps("plastic", block=False)
     n.draw("all_weight")
     n.switch("classic")
     #n.set_noise(True)
@@ -120,11 +119,11 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
       for i in xrange(nb_group):
         stimulate(neuron_set=i)
     else:
-      n.block_plasticity("inter neuron")
+      n.block_plasticity("plastic")
       n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = spike_function(10))
       n.run()
       n.clean_current(flags=["activator %s" % (neuron_set)])
-      n.block_plasticity("inter neuron", block=False)
+      n.block_plasticity("plastic", block=False)
     
   n.add_mode(name="learning")
   n.add_mode(name="stimulate")
