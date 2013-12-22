@@ -10,59 +10,24 @@ from timer import Timer
 from time import sleep
 
 
-def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500, time_window=pow(10,2), data="classic"):
-  
-  constant = {
-    "classic" :  {
-      "ex_nb"             : 8,
-      "in_bn"             : 2,
-      "nb_group"          : 8,
-      "neuron_per_group"  : 5.3,
-      "noise_power"       : 5.5*pow(10,2),
-      "uref_inter"        : 48,
-      "uref_input"        : 48,
-      "uref_inhib"        : 120,
-    },
-    "no_inhib" : {
-      "ex_nb"             : 8,
-      "in_bn"             : 0,
-      "nb_group"          : 8,
-      "neuron_per_group"  : 5.3,
-      "noise_power"       : 5.5*pow(10,2),
-      "uref_inter"        : 52,
-      "uref_input"        : 52,
-      "uref_inhib"        : 120,
-    },
-  }
-
+def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500, time_window=pow(10,2)):
 
   ##################################################################
   #Constant
 
-  if data is not None:
-    ex_neuron_number    = constant[data]["ex_nb"]
-    inhib_neuron_number = constant[data]["in_bn"]
-    nb_group            = constant[data]["nb_group"]
-    neuron_per_group    = constant[data]["neuron_per_group"]
-    noise_power         = constant[data]["noise_power"]
-    uref_inter          = constant[data]["uref_inter"]
-    uref_input          = constant[data]["uref_input"]
-    uref_inhib          = constant[data]["uref_inhib"]
-
-
-  """
-  neuron_per_group    = 5.3 
+  neuron_per_group    = 6 
 
   ex_neuron_number    = ex_nb 
   inhib_neuron_number  = in_nb
-  """
 
+
+  ex_nb_2  = 4
 
 
   ##################################################################
   #Network creation
 
-  noise_generator = NoiseGenerator(noise_power) 
+  noise_generator = NoiseGenerator(5.5*pow(10,2)) 
 
   n = Network(time_window = time_window, save_data = save_data, noise_generator = noise_generator)
 
@@ -86,14 +51,24 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
       n.link_neuron_to_group(neuron_id,"inhib", rand=True, post=False, synaps_flags=["input","inhib"])
     """
 
-  n.set_uref_square(uref_inter, "inter neuron")
-  n.set_uref_square(uref_input, "input")
+  n.set_uref_square(45, "inter neuron")
+  n.set_uref_square(45, "input")
   n.set_max_weight(1, "inter neuron")
   try:
-    n.set_uref_square(uref_inhib, ["inhib", "inter neuron"])
+    n.set_uref_square(120, ["inhib", "inter neuron"])
     n.set_max_weight(5, ["inhib", "inter neuron"])
   except KeyError:
     pass
+
+
+  """
+  for i in xrange(ex_nb_2):
+    neuron_id = n.add_neuron(flags="third line")
+    n.link_neuron_to_group(neuron_id, "receptive", rand=True, post=True, synaps_flags="second wave", synaps_multiplicator=neuron_per_group)
+  n.connect_group("third line", synaps_flag="third inter")
+  """
+
+  
 
 
   ##################################################################
@@ -161,7 +136,6 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
 
   return n
 
-n = visual_network()
 
 #t.prnt()
 #n.draw_synaps_graph("dw_plus")
