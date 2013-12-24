@@ -550,12 +550,14 @@ class Network():
 
     plt.show()
 
-  def draw_correlation(self, graph_key, flags=None, smooth=False):
+  def draw_correlation(self, graph_key, flags=None, smooth=False,reverse=False):
     # Gathering neurons
     if flags is None:
       neuron_list = xrange(len(self.neuron_list))
     else:
       neuron_list = self.get_neuron_id_from_flags(flags)
+    if reverse:
+      neuron_list.reverse()
     # Gathering datas
     data = map(lambda x : self.neuron_data[x][graph_key], neuron_list)
     if smooth:

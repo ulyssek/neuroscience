@@ -3,6 +3,7 @@
 from network import *
 from noise_generator import *
 from random import randint
+from math_tools import *
 
 from time import time
 from timer import Timer
@@ -10,7 +11,7 @@ from timer import Timer
 from time import sleep
 
 
-def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500, time_window=pow(10,2), data="classic"):
+def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="classic"):
   
   constant = {
     "classic" :  {
@@ -22,6 +23,8 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
       "uref_inter"        : 48,
       "uref_input"        : 48,
       "uref_inhib"        : 120,
+      "max_w_inhib"       : 5,
+      "max_w_exci"        : 1,
     },
     "no_inhib" : {
       "ex_nb"             : 8,
@@ -48,6 +51,8 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
     uref_inter          = constant[data]["uref_inter"]
     uref_input          = constant[data]["uref_input"]
     uref_inhib          = constant[data]["uref_inhib"]
+    max_w_inhib         = constant[data]["max_w_inhib"]
+    max_w_exci          = constant[data]["max_w_exci"]
 
 
   """
@@ -88,10 +93,10 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
 
   n.set_uref_square(uref_inter, "inter neuron")
   n.set_uref_square(uref_input, "input")
-  n.set_max_weight(1, "inter neuron")
+  n.set_max_weight(max_w_exci, "inter neuron")
   try:
     n.set_uref_square(uref_inhib, ["inhib", "inter neuron"])
-    n.set_max_weight(5, ["inhib", "inter neuron"])
+    n.set_max_weight(max_w_inhib, ["inhib", "inter neuron"])
   except KeyError:
     pass
 
@@ -109,7 +114,7 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
   n.add_graph(graph, name="all_weight")
   graph = lambda : n.draw_neuron_graph(["potential"], flags="receptive")
   n.add_graph(graph, name="stimulation")
-  graph = lambda : n.draw_correlation("firing_rate", flags="receptive", smooth=True)
+  graph = lambda : n.draw_correlation("firing_rate", flags="receptive", smooth=True, reverse=True)
   n.add_graph(graph, name="correlation")
 
   ##################################################################
@@ -141,8 +146,15 @@ def visual_network(ex_nb=8, in_nb=2, nb_group = 8, save_data=False, nb_round=500
 
   def stimulate(neuron_set=None):
     if neuron_set is None:
+      result = []
       for i in xrange(nb_group):
         stimulate(neuron_set=i)
+        temp = []
+        for j in n.get_neuron_id_from_flags(["receptive"]):
+          temp.append(n.neuron_data[j]["firing_rate"][-1])
+        result.append(temp)
+      histogram(result)
+
     else:
       n.block_plasticity("plastic")
       n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = spike_function(10))

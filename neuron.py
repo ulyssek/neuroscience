@@ -45,7 +45,7 @@ class Neuron(object):
     self.th             = 20      # fix threshold [mV]
     self._u_ref_square  = 20      # potential reference value [mV2]
 
-    self._nb_average    = 50
+    self._nb_average    = 100
     self._fire_count    = 0
 
     #SYNAPS CONSTANT
