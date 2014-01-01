@@ -127,7 +127,7 @@ class Network():
     #ti.prnt(1)
 
   def launch(self, **kwargs):
-    self.experiment[self._mode](**kwargs)
+    return self.experiment[self._mode](**kwargs)
 
   ##################################################################
   # SET FUNCTIONS

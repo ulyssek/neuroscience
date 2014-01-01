@@ -40,7 +40,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
 
 
   ##################################################################
-  #Constant
+  #Constants
 
   if data is not None:
     ex_neuron_number    = constant[data]["ex_nb"]
@@ -102,7 +102,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
 
 
   ##################################################################
-  #Drawing
+  #Drawings
 
   graph = lambda : n.draw_synaps_graph(["weight"], flags="inter neuron")
   n.add_graph(graph, name="inter")
@@ -118,7 +118,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   n.add_graph(graph, name="correlation")
 
   ##################################################################
-  #Experiment
+  #Experiments
 
   def experiment(trail_nb=nb_round):
     for i in xrange(trail_nb):
@@ -144,17 +144,26 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     #n.set_noise(True)
     n.launch()
 
-  def stimulate(neuron_set=None):
+  def stimulate(neuron_set=None, neuron_id=None, flags=None):
     if neuron_set is None:
-      result = []
+      if neuron_id is not None:
+        result  = [[]]
+      elif flags is not None:
+        result  = map(lambda x : [], range(len(n.get_neuron_id_from_flags(flags))))
       for i in xrange(nb_group):
         stimulate(neuron_set=i)
-        temp = []
-        for j in n.get_neuron_id_from_flags(["receptive"]):
-          temp.append(n.neuron_data[j]["firing_rate"][-1])
-        result.append(temp)
-      histogram(result)
-
+        if neuron_id is not None:
+          result[0].append(n.neuron_data[neuron_id]["firing_rate"][-1])
+        elif flags is not None:
+          count = 0
+          for j in n.get_neuron_id_from_flags(flags):
+            result[count].append(n.neuron_data[j]["firing_rate"][-1])
+            count += 1
+      try:
+        result = map(lambda x : map(lambda y : max(y,0.001),x),result)
+        return result
+      except:
+        pass
     else:
       n.block_plasticity("plastic")
       n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = spike_function(10))
