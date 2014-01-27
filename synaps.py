@@ -76,6 +76,9 @@ class Synaps():
   def set_max_weight(self, weight):
     self._w_max = weight
 
+  def set_weight(self, weight):
+    self.w = weight
+
   ##################################################################
   #GET FUNCTIONS
   
@@ -111,6 +114,9 @@ class Synaps():
 
   def get_pre_neuron(self):
     return self.pre_neuron
+ 
+  def get_post_neuron(self):
+    return self.post_neuron
 
   def get_uref_square(self):
     return self._u_ref_square

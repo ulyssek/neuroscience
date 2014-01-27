@@ -51,10 +51,11 @@ class Network():
     else:
       self.default_noise_generator = noise_generator
 
-    self._noisy = True
-
-    self.neuron_flag_dict  = {}     # This dictionary will contain several list of flaged neurons
-    self.synaps_flag_dict  = {}     # This dictionary will contain several list of flaged synaps
+    self._noisy           = True
+    self.saves            = {}
+    self._keeps           = {}
+    self.neuron_flag_dict = {}     # This dictionary will contain several list of flaged neurons
+    self.synaps_flag_dict = {}     # This dictionary will contain several list of flaged synaps
 
     self.experiment    = {     # default function
         "classic"  : self.run,
@@ -101,29 +102,29 @@ class Network():
   def run(self, time_window = None):
     if time_window is None:
       time_window = self._time_window[self._mode]
-    ti = Timer()
+    #ti = Timer()
     for t in xrange(int(time_window)):
 
-      ti.pick()
+      #ti.pick()
       #Neurons update
       for neuron_id in xrange(self.get_neuron_number()):
         current = self.neuron_input_list[self._mode][neuron_id](t)    
         if self._noisy:
           current += self.neuron_noise_list[neuron_id].get_current(t)
         self.neuron_list[neuron_id].run(current = current)
-      ti.pick("neuron update")
+      #ti.pick("neuron update")
 
       #Synaps update
       for synaps in self.synaps_list:
         synaps.run()
-      ti.pick("synaps_update")
+      #ti.pick("synaps_update")
 
 
       if self._save_data:
         self.collect_data()
-      ti.pick("collect data")
-      ti.save()
-      ti.clean()
+      #ti.pick("collect data")
+      #ti.save()
+      #ti.clean()
     #ti.prnt(1)
 
   def launch(self, **kwargs):
@@ -245,12 +246,30 @@ class Network():
 
 
   def get_synaps_from_flags(self, flags):
+    synaps_ids = self.get_synaps_id_from_flags(flags)
+    return map(lambda x : self.synaps_list[x], synaps_ids)
+    """
     if type(flags) != list:
       flags = [flags]
     synaps_list = set()
     boule = True
     for flag in flags:
       temp_list = map(lambda x : self.synaps_list[x], self.synaps_flag_dict[flag])
+      if boule:
+        boule = False
+        synaps_list = set(temp_list)
+      else:
+        synaps_list = set.intersection(synaps_list, temp_list)
+    return list(set(synaps_list))
+    """
+
+  def get_synaps_id_from_flags(self, flags):
+    if type(flags) != list:
+      flags = [flags]
+    synaps_list = set()
+    boule = True
+    for flag in flags:
+      temp_list = self.synaps_flag_dict[flag]
       if boule:
         boule = False
         synaps_list = set(temp_list)
@@ -291,6 +310,10 @@ class Network():
 
   def valid_id(self, neuron_id):
     return not (neuron_id > self.get_neuron_number() or neuron_id < 0)
+
+
+  ##################################################################
+  # ADDING NEURONS AND SYNAPS TO THE NETWORK 
 
   @classmethod
   def connect_neurons(cls, post_neuron, pre_neuron,weight, name=None, synaps_multiplicator=1, plasticity = True):
@@ -398,6 +421,86 @@ class Network():
     for neuron_id in self.neuron_flag_dict[flag]:
       self.impose_current(neuron_id, current_id = current_id, current_function = current_function)
 
+  ##################################################################
+  # SAVING FUNCTIONS
+
+  def save_weights(self, save_name=None, force=False, flags=None):
+    if save_name is None:
+      save_name = str(len(self.saves.keys()))
+    if save_name in self.saves.keys():
+      print "Waring, save name already used, please use force=True to overide current save"
+      if not force:
+        return
+    self.saves[save_name] = {}
+    if flags is None:
+      synaps_ids = range(len(self.synaps_list))
+    else:
+      synaps_ids = self.get_synaps_id_from_flags(flags)
+    for synaps_id in synaps_ids:
+      self.saves[save_name][synaps_id] = self.synaps_list[synaps_id].get_weight()
+    #self.saves[save_name] = map(lambda x : self.synaps_list[x].get_weight(), synaps_id)
+    print self.saves
+
+  def restaure_weights(self, save_name=None):
+    if save_name is None:
+      save_name = self.saves.keys()[0]
+    save = self.saves[save_name]
+    for synaps_id in save.keys():
+      self.synaps_list[synaps_id].set_weight(save[synaps_id])
+    
+  def reinitialize_weights(self, synaps_id=None, flags=None):
+    if synaps_id is not None:
+      ids = [synaps_id]
+    elif flags is not None:
+      ids = self.get_synaps_id_from_flags(flags)
+    else:
+      print "you need to pick some synapses"
+      return
+    for synaps_id in ids:
+      self.synaps_list[synaps_id].set_weight(0)
+
+  def keep_connected(self, keep_name=None, force=True,flags=None):
+    result = []
+    if keep_name is None:
+      keep_name = str(len(self._keeps.keys()))
+    if keep_name in self._keeps.keys() and not force:
+      print "name already used, please use force=True"
+      return
+    if flags is not None:
+      synaps_list = self.get_synaps_from_flags(flags)
+    else:
+      synaps_list = self.synaps_list
+    for synaps in synaps_list:
+      if synaps.get_weight() > 0.5:
+        result.append((synaps.get_post_neuron().get_id(),synaps.get_pre_neuron().get_id()))
+    self._keeps[keep_name] = result
+
+
+  def compare_keeps(self, name1, name2):
+    try:
+      keep1 = self._keeps[str(name1)]
+    except:
+      print "name1 unknown"
+      print "list name : %s" % str(self._keeps.keys())
+      return
+    try:
+      keep2 = self._keeps[str(name1)]
+    except:
+      print "name1 unknown"
+      print "list name : %s" % str(self._keeps.keys())
+      return
+    count = 0
+    for i in self._keeps[str(name1)]:
+      count += int(i in self._keeps[str(name2)])
+    avg = (len(self._keeps[str(name1)])+len(self._keeps[str(name2)]))/2.
+    try:
+      return count/avg
+    except:
+      return 0
+
+  ##################################################################
+  # BLOCKING FUNCTIONS
+
   def block_synaps(self, flag, block=True):
     for synaps_id in self.synaps_flag_dict[flag]:
       self.synaps_list[synaps_id].block(block)
@@ -405,8 +508,6 @@ class Network():
   def block_plasticity(self, flag, block=True):
     for synaps_id in self.synaps_flag_dict[flag]:
       self.synaps_list[synaps_id].block_plasticity(block)
-
-
 
   ##################################################################
   # SET FUNCTIONS

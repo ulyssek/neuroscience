@@ -35,9 +35,10 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
       "uref_inter"        : 52,
       "uref_input"        : 52,
       "uref_inhib"        : 120,
+      "max_w_inhib"       : 5,
+      "max_w_exci"        : 1,
     },
   }
-
 
   ##################################################################
   #Constants
@@ -54,16 +55,6 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     max_w_inhib         = constant[data]["max_w_inhib"]
     max_w_exci          = constant[data]["max_w_exci"]
 
-
-  """
-  neuron_per_group    = 5.3 
-
-  ex_neuron_number    = ex_nb 
-  inhib_neuron_number  = in_nb
-  """
-
-
-
   ##################################################################
   #Network creation
 
@@ -75,7 +66,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   for i in xrange(ex_neuron_number):
     n.add_neuron(flags=["receptive","exci"])
   if ex_neuron_number != 0:
-    n.connect_group("receptive", synaps_flag=["inter neuron","plastic"], weight=0)
+    n.connect_group("receptive", synaps_flag=["inter neuron","plastic","exci"], weight=0)
 
   for i in xrange(inhib_neuron_number):
     neuron_id = n.add_neuron(flags=["receptive","inhib"], inhib=True)
@@ -120,12 +111,19 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   ##################################################################
   #Experiments
 
-  def experiment(trail_nb=nb_round):
+  def experiment(trail_nb=nb_round,print_keeps=False,keep_flags=None,thr=0.5):
     for i in xrange(trail_nb):
       neuron_set = randint(0,nb_group-1)
       n.impose_current_to_group(("activator %s" % (neuron_set)), current_function =  spike_function(10,random=True))
 
       n.run()
+      if print_keeps:
+        n.keep_connected("relearning",True,flags=keep_flags)
+        s = n.compare_keeps("relearning","stable")
+        print s
+        if s>thr:
+          print "interations : %s" % (i,)
+          sleep(5)
       n.clean_current()
     n.draw("all_weight")
 
@@ -170,12 +168,22 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
       n.run()
       n.clean_current(flags=["activator %s" % (neuron_set)])
       n.block_plasticity("plastic", block=False)
+
+  def exp_timer():
+    n.switch("classic")
+    n.keep_connected(keep_name="stable", flags=["inter neuron","exci"])
+    n.reinitialize_weights(flags=["inter neuron","exci"])
+    n.launch(print_keeps=True,keep_flags=["inter neuron", "exci"])
+    n.switch("exp_time")
     
   n.add_mode(name="learning")
   n.add_mode(name="stimulate")
+  n.add_mode(name="exp_time")
   n.set_experiment(experiment)
   n.switch("stimulate")
   n.set_experiment(stimulate)
+  n.switch("exp_time")
+  n.set_experiment(exp_timer)
   n.switch("learning")
   n.set_experiment(learning)
     
@@ -184,7 +192,6 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
 
 n = visual_network()
 
-#t.prnt()
 #n.draw_synaps_graph("dw_plus")
 #n.draw_synaps_graph(["weight"], flags="inter neuron")
 #n.draw_synaps_graph(["weight"], flags=["neuron 1", "neuron 2", "neuron 3"])

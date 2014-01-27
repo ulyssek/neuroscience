@@ -46,15 +46,15 @@ def correlation(list1, list2):
   m2 = float(sum(list2))/l2
 
   
-def histogram(list_list):
+def histogram(list_list, witness=False):
   fig, ax = plt.subplots()
   width = 0.35
   ind = np.arange(len(list_list[0]))*(len(list_list)+1)*(width)
-  print ind
   color = ((1,0,0), (1,1,0), (1,1,1), (1,0,1), (0,1,0), (0,1,1), (0,0.5,0.5), (0,0,1), (0.5,0,0), (0,0.5,0), (0,0,0.5))
 
   ax.set_xticks(ind+width*len(list_list)/2.)
-  ax.set_xticklabels( ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW') )
+  #ax.set_xticklabels( ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW') )
+  ax.set_xticklabels( ("no inhib", "inhib"))
 
   def autolabel(rects):
     # attach some text labels
@@ -68,5 +68,6 @@ def histogram(list_list):
     rects = ax.bar(ind + i*width, list_list[i], width, color=color[i%(len(color))])
     #autolabel(rects)
 
-  ax.bar(np.arange(1)+(len(list_list[0])*(len(list_list)+1)-1)*width, [0.1], width, color=(0,0,0))
+  if witness:
+    ax.bar(np.arange(1)+(len(list_list[0])*(len(list_list)+1)-1)*width, [1], width, color=(0,0,0))
   plt.show()
