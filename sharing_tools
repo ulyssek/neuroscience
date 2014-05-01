@@ -1,0 +1,5 @@
+
+
+def add_to_file(text, file_name):
+  my_file = open(file_name,"a")
+  my_file.write(text + "$")

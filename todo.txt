@@ -1,0 +1,8 @@
+poids égaux
+ploter plus coolement le firing rate
+renverser la matrice
+faire les teste avec l'inhibition selective
+
+
+
+reapprentissage, robustness, virer un neurone du cluster

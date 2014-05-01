@@ -71,3 +71,7 @@ def histogram(list_list, witness=False):
   if witness:
     ax.bar(np.arange(1)+(len(list_list[0])*(len(list_list)+1)-1)*width, [1], width, color=(0,0,0))
   plt.show()
+
+def custom_avg(list_list):
+  return map(lambda x : np.average(x), zip(*list_list))
+

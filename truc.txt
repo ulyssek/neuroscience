@@ -1,0 +1,25 @@
+poisson en entrée
+retirer la saturation
+
+
+
+figure : 
+
+-résultats du réseau vs hoffer
+
+
+-implications : réapprentissage
+
+
+
+plan :
+
+I) Structure du réseau
+II) comparaison a Hoffer
+III) Implications
+
+
+
+
+qualifier la stabilité du réseau
+combien de temps pour réapprendre ?

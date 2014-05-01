@@ -1,0 +1,6 @@
+n.set_uref_square(10, "inter neuron")
+n.set_uref_square(80, ["inhib", "inter neuron"])
+n.set_uref_square(20, "input")
+n.set_max_weight(1, "inter neuron")
+n.set_max_weight(5, ["inhib", "inter neuron"])
+

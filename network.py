@@ -165,8 +165,11 @@ class Network():
       name = self.neuron_input_list.keys()[name]
     self._mode = name
 
-  def save_data(self):
-    self._save_data = not self._save_data
+  def save_data(self,boule=None):
+    if boule is not None:
+      self._save_data =boule
+    else:
+      self._save_data = not self._save_data
 
   def set_noise(self, boule=True):
     self._noisy = boule
@@ -651,7 +654,7 @@ class Network():
 
     plt.show()
 
-  def draw_correlation(self, graph_key, flags=None, smooth=False,reverse=False):
+  def draw_correlation(self, graph_key, flags=None, smooth=False,reverse=False,name=None,xlabel=None,ylabel=None):
     # Gathering neurons
     if flags is None:
       neuron_list = xrange(len(self.neuron_list))
@@ -669,6 +672,12 @@ class Network():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.imshow(correlation_matrix, interpolation="nearest")
+    if name is not None:
+      plt.title(name)
+    if xlabel is not None:
+      plt.xlabel(xlabel)
+    if ylabel is not None:
+      plt.ylabel(ylabel)
     plt.show()
 
     
@@ -698,6 +707,7 @@ def smart_plot(liste, x_list = None, figure = False, names = None):
       args = (x_list, liste, color[0])
       plt.plot(*args)
   plt.show()
+  return plt
 
 def spike_function(frequency = 100, phase = 0, random=False):
   if random:
