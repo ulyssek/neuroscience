@@ -192,13 +192,16 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     
 
   def stimulation_radar():
+    #Preparing the experiment
     n.switch("stimulate")
     n.save_data(True)
     n.clean_data()
+    #Gathering Data
     zero = [0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001] #Vecteur avec que des zero, utile uniquement pour l'affichagede la fonction graphique
     exci_data = n.launch(flags="exci")
     n.clean_data()
     inhib_data = n.launch(flags="inhib")
+    #serielazing data
     first_group = exci_data[0:4]
     first_group.append(zero)
     second_group = exci_data[4:8]
@@ -209,6 +212,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
       "Group 2 " : second_group,
       "Inhib   " : inhib_data,
     }
+    #Ploting diagram
     plot_diagram(data,card=True)
     
 
