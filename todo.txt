@@ -6,3 +6,19 @@ faire les teste avec l'inhibition selective
 
 
 reapprentissage, robustness, virer un neurone du cluster
+
+
+
+
+connectivity : séparer tout le monde.
+
+
+réapprentissage : les deux sur la meme figure, label, axe
+
+matrice des poids : matrice sans inhibition, légende, axe. Que veulent dire les couleurs, les numéros
+couper en deux matrices
+
+
+similarité : juste les deux barres. barre de la meme couleur. similarity, s. Trop d'espace entre les deux barres.
+
+caption des figures

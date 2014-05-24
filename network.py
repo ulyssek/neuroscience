@@ -164,6 +164,8 @@ class Network():
     if type(name) == int:
       name = self.neuron_input_list.keys()[name]
     self._mode = name
+    if name not in self.neuron_input_list.keys():
+      print "WARNING, name not known"
 
   def save_data(self,boule=None):
     if boule is not None:

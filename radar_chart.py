@@ -171,34 +171,79 @@ def plot_diagram(data,card=False):
   try:
     spoke_labels = data.pop('column names')
   except:
+    pass
+  
+  radar = Radar(card)
+  radar.add_dict(data)
+  radar.plot()
+
+class Radar():
+
+  ##################################################################
+  ## CLASS VARS
+
+  CARD_LABELS = ["N","NE","E","SE","S","SO","O","NO"]
+  
+  ##################################################################
+  ## BUILDING FUNCTIONS
+
+  def __init__(self, card=True,labels=None):
+    self._card = True
+    self._data = {}
     if card:
-      spoke_labels = ["N","NE","E","SE","S","SO","O","NO"]
+      self._labels = self.CARD_LABELS
+    elif labels is not None:
+      self._labels = labels
     else:
-      spoke_labels = xrange(len(data.keys()[0]))
-  N = len(data.keys()[0])
-  theta = radar_factory(N, frame='polygon')
+      self._labels = range(10)
+      
 
-  fig = plt.figure(figsize=(9, 9))
-  fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
+  def add_data(self, name, data, force=False):
+    if name in self._data.keys() and not force:
+      raise Exception("name's already used, please use force=True")
+    self._data[name] = data
 
-  colors = ['b', 'r', 'g', 'm', 'y']
-  # Plot the four cases from the example data on separate axes
-  for n, title in enumerate(data.keys()):
-      ax = fig.add_subplot(2, 2, n+1, projection='radar')
-      plt.rgrids([0.02, 0.04, 0.06, 0.08])
-      ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),
-                   horizontalalignment='center', verticalalignment='center')
-      for d, color in zip(data[title], colors):
-          ax.plot(theta, d, color=color)
-          ax.fill(theta, d, facecolor=color, alpha=0.25)
-      ax.set_varlabels(spoke_labels)
+  
+  def add_dict(self, data, force=False):
+    for key in data.keys():
+      self.add_data(key, data[key], force)
 
-  # add legend relative to top-left plot
-  plt.subplot(2, 2, 1)
-  labels = ('Neuron 1', 'Neuron 2', 'Neuron 3', 'Neuron 4')
-  legend = plt.legend(labels, loc=(0.9, .95), labelspacing=0.1)
-  plt.setp(legend.get_texts(), fontsize='small')
+  ##################################################################
+  ## GETTING FUNCTIONS 
+  
+  def get_nb_fig(self):
+    return len(self._data)
 
-  plt.figtext(0.5, 0.965, 'Connectivity Graphic',
-              ha='center', color='black', weight='bold', size='large')
-  plt.show()
+  def get_data_size(self):
+    return len(self._data[self._data.keys()[0]][0])
+
+  ##################################################################
+  ## PLOTING FUNCTIONS
+
+  def plot(self):
+    theta = radar_factory(self.get_data_size(), frame='polygon')
+
+    fig = plt.figure(figsize=(9, 9))
+    fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
+
+    colors = ['b', 'r', 'g', 'm', 'y']
+    # Plot the four cases from the example data on separate axes
+    for n, title in enumerate(self._data.keys()):
+        ax = fig.add_subplot(2, 2, n+1, projection='radar')
+        plt.rgrids([0.02, 0.04, 0.06, 0.08])
+        ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),
+                     horizontalalignment='center', verticalalignment='center')
+        for d, color in zip(self._data[title], colors):
+            ax.plot(theta, d, color=color)
+            ax.fill(theta, d, facecolor=color, alpha=0.25)
+        ax.set_varlabels(self._labels)
+
+    # add legend relative to top-left plot
+    plt.subplot(2, 2, 1)
+    labels = ('Neuron 1', 'Neuron 2', 'Neuron 3', 'Neuron 4')
+    legend = plt.legend(labels, loc=(0.9, .95), labelspacing=0.1)
+    plt.setp(legend.get_texts(), fontsize='small')
+
+    plt.figtext(0.5, 0.965, 'Connectivity Graphic',
+                ha='center', color='black', weight='bold', size='large')
+    plt.show()

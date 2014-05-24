@@ -207,6 +207,13 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     second_group = exci_data[4:8]
     second_group.append(zero)
     inhib_data.append(zero)
+    test = {}
+    for i in xrange(len(exci_data)):
+      chaine = "Group %s " % (i)
+      test[chaine] = [exci_data[i]]
+      plot_diagram(test,card=True)
+    print test
+    plot_diagram(test,card=True)
     data = {
       "Group 1 " : first_group,
       "Group 2 " : second_group,
