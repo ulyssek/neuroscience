@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*-coding:utf-8-*-
 
 
 
@@ -17,6 +18,8 @@ from numpy.random import normal, poisson
 
 
 import matplotlib.pyplot as plt
+import matplotlib.colors as clr
+import matplotlib.cm
 
 
 from __init__ import *
@@ -628,7 +631,7 @@ class Network():
     else:
       self._graph_dict[name]()
 
-  def draw_weight(self, neuron_list = None, pre_list = None, post_list = None, flag=None): 
+  def draw_weight(self, neuron_list = None, pre_list = None, post_list = None, flag=None, title=None,xlabel=None,ylabel=None,vmin=None,vmax=None,color_bar=True,color_bar_label=None): 
     X = []
     if neuron_list is not None:
       pre_list   = neuron_list
@@ -652,8 +655,18 @@ class Network():
       X.append(temp)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.imshow(X, interpolation="nearest")
-
+    cmap = clr.Colormap("lo",100) 
+    img = ax.imshow(X, interpolation="nearest",vmax=vmax,vmin=vmin)
+    if color_bar:
+      color_bar = plt.colorbar(img)
+      if color_bar_label is not None:
+        color_bar.set_label(color_bar_label)
+    if title is not None:
+      ax.set_title(title)
+    if xlabel is not None:
+      ax.set_xlabel(xlabel)
+    if ylabel is not None:
+      ax.set_ylabel(ylabel)
     plt.show()
 
   def draw_correlation(self, graph_key, flags=None, smooth=False,reverse=False,name=None,xlabel=None,ylabel=None):
@@ -689,7 +702,7 @@ class Network():
   ##################################################################
 
 
-def smart_plot(liste, x_list = None, figure = False, names = None):
+def smart_plot(liste, x_list = None, figure = False, names = None,xlabel=None,ylabel=None,xlim=None,ylim=None, legend=None, legend_position=1):
   color = ("r--", "b--", "g--", "y--", "o--")
   if figure:
     plt.figure(1)
@@ -700,14 +713,41 @@ def smart_plot(liste, x_list = None, figure = False, names = None):
       if names is not None:
         plt.title(names[key])
   else:
+    ax = plt.gca()
     if x_list is None:
       args = ()
+      kwargs = {}
+      label = None
       for key in xrange(len(liste)):
-        args += (range(len(liste[key])), liste[key], color[key % len(color)])
-      plt.plot(*args)
+        if legend is not None:
+          kwargs = {"label":legend[key]}
+        args = (range(len(liste[key])), liste[key], color[key % len(color)])
+        plt.plot(*args,**kwargs)
     else:
       args = (x_list, liste, color[0])
       plt.plot(*args)
+    if names is not None:
+      plt.title(names)
+    if xlabel is not None:
+      ax.set_xlabel(xlabel)
+    if ylabel is not None:
+      ax.set_ylabel(ylabel)
+    if xlim is not None:
+      ax.set_xlim(xlim)
+    if ylim is not None:
+      ax.set_ylim(ylim)
+    if legend is not None:
+      if legend_position==1:
+        loc = "upper right"
+      elif legend_position==2:
+        loc = "lower right"
+      elif legend_position==3:
+        loc = "lower left"
+      else:
+        loc = "upper left"
+      plt.legend(loc=loc)
+
+
   plt.show()
   return plt
 

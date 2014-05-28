@@ -46,15 +46,22 @@ def correlation(list1, list2):
   m2 = float(sum(list2))/l2
 
   
-def histogram(list_list, witness=False):
+def histogram(list_list, witness=False,title=None,ylim=(0,1),xlim=(0,0.76),ylabel=None,stick_labels=None):
   fig, ax = plt.subplots()
-  width = 0.35
+  if title is not None:
+    fig.suptitle(title)
+  width = 0.25
   ind = np.arange(len(list_list[0]))*(len(list_list)+1)*(width)
   color = ((1,0,0), (1,1,0), (1,1,1), (1,0,1), (0,1,0), (0,1,1), (0,0.5,0.5), (0,0,1), (0.5,0,0), (0,0.5,0), (0,0,0.5))
 
   ax.set_xticks(ind+width*len(list_list)/2.)
   #ax.set_xticklabels( ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW') )
-  ax.set_xticklabels( ("no inhib", "inhib"))
+  if stick_labels is not None:
+    ax.set_xticklabels(stick_labels)
+  ax.set_ylabel(ylabel)
+  ax.set_autoscale_on(False)
+  ax.set_xlim(xlim)
+  ax.set_ylim(ylim)
 
   def autolabel(rects):
     # attach some text labels
@@ -70,6 +77,8 @@ def histogram(list_list, witness=False):
 
   if witness:
     ax.bar(np.arange(1)+(len(list_list[0])*(len(list_list)+1)-1)*width, [1], width, color=(0,0,0))
+
+
   plt.show()
 
 def custom_avg(list_list):

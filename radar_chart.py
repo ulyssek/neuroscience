@@ -182,7 +182,8 @@ class Radar():
   ##################################################################
   ## CLASS VARS
 
-  CARD_LABELS = ["N","NE","E","SE","S","SO","O","NO"]
+  CARD_LABELS     = ["N","NE","E","SE","S","SO","O","NO"]
+  PLOTTING_LIMIT  = 4
   
   ##################################################################
   ## BUILDING FUNCTIONS
@@ -208,6 +209,32 @@ class Radar():
     for key in data.keys():
       self.add_data(key, data[key], force)
 
+  @classmethod
+  def RadarsFromList(cls, data_list):
+    size = len(data_list[0])
+    zero = map(lambda x : 0.001, range(size))
+    temp            = {}
+    count           = 1
+    radars          = []
+    plotting_limit  = cls.PLOTTING_LIMIT
+    for i in xrange(len(data_list)):
+      chaine = "Neuron %s" % (i+1)
+      temp[chaine] = [data_list[i],zero]
+      count += 1
+      if count == (plotting_limit +1):
+        radar = Radar()
+        radar.add_dict(temp)
+        radars.append(radar)
+        count = 1
+        temp = {}
+    if temp:
+      radar = Radar()
+      radar.add_dict(temp)
+      radars.append(radar)
+    return radars
+
+    
+
   ##################################################################
   ## GETTING FUNCTIONS 
   
@@ -220,7 +247,7 @@ class Radar():
   ##################################################################
   ## PLOTING FUNCTIONS
 
-  def plot(self):
+  def plot(self,legend=True,fig_title=None):
     theta = radar_factory(self.get_data_size(), frame='polygon')
 
     fig = plt.figure(figsize=(9, 9))
@@ -238,12 +265,19 @@ class Radar():
             ax.fill(theta, d, facecolor=color, alpha=0.25)
         ax.set_varlabels(self._labels)
 
+    if legend:
+      self.plot_legend()
+    if fig_title is not None:
+      self.plot_title(fig_title)
+    plt.show()
+
+  def plot_legend(self):
     # add legend relative to top-left plot
     plt.subplot(2, 2, 1)
     labels = ('Neuron 1', 'Neuron 2', 'Neuron 3', 'Neuron 4')
     legend = plt.legend(labels, loc=(0.9, .95), labelspacing=0.1)
     plt.setp(legend.get_texts(), fontsize='small')
 
-    plt.figtext(0.5, 0.965, 'Connectivity Graphic',
+  def plot_title(self,title):
+    plt.figtext(0.5, 0.965, title,
                 ha='center', color='black', weight='bold', size='large')
-    plt.show()
