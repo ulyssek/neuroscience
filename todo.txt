@@ -22,3 +22,9 @@ couper en deux matrices
 similarité : juste les deux barres. barre de la meme couleur. similarity, s. Trop d'espace entre les deux barres.
 
 caption des figures
+
+
+
+
+inter neuron connectivity : mettre plus de contraste, aller de 0 a 5
+dans activator connectivity, mettre les directions N, E, O...

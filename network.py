@@ -256,20 +256,6 @@ class Network():
   def get_synaps_from_flags(self, flags):
     synaps_ids = self.get_synaps_id_from_flags(flags)
     return map(lambda x : self.synaps_list[x], synaps_ids)
-    """
-    if type(flags) != list:
-      flags = [flags]
-    synaps_list = set()
-    boule = True
-    for flag in flags:
-      temp_list = map(lambda x : self.synaps_list[x], self.synaps_flag_dict[flag])
-      if boule:
-        boule = False
-        synaps_list = set(temp_list)
-      else:
-        synaps_list = set.intersection(synaps_list, temp_list)
-    return list(set(synaps_list))
-    """
 
   def get_synaps_id_from_flags(self, flags):
     if type(flags) != list:
@@ -284,6 +270,27 @@ class Network():
       else:
         synaps_list = set.intersection(synaps_list, temp_list)
     return list(set(synaps_list))
+
+  def get_nb_connection(self, flags=None):
+    count = 0
+    if flags is not None:
+      synaps_list = self.get_synaps_from_flags(flags)
+    else:
+      synaps_list = self.synaps_list
+    for synaps in synaps_list:
+      if synaps.get_weight() > 0.5:
+        count += 1
+    return count
+
+  def get_firing_rate(self, neuron_id=None, flags=None):
+    if neuron_id is not None:
+      neurons = [neuron_id]
+    elif flags is not None:
+      neurons = self.get_neuron_id_from_flags(flags)
+    else:
+      raise Exception("Come on, dude, you have to pick up some neurons")
+    avg_fr = numpy.average(map(lambda x : self.neuron_data[x]["firing_rate"][-1], neurons)) 
+    return avg_fr
     
   ##################################################################
   # OTHER FUNCTIONS
@@ -631,7 +638,7 @@ class Network():
     else:
       self._graph_dict[name]()
 
-  def draw_weight(self, neuron_list = None, pre_list = None, post_list = None, flag=None, title=None,xlabel=None,ylabel=None,vmin=None,vmax=None,color_bar=True,color_bar_label=None): 
+  def draw_weight(self, neuron_list = None, pre_list = None, post_list = None, flag=None, title=None,xlabel=None,ylabel=None,vmin=None,vmax=None,color_bar=True,color_bar_label=None,x_stick_labels=None): 
     X = []
     if neuron_list is not None:
       pre_list   = neuron_list
@@ -667,9 +674,11 @@ class Network():
       ax.set_xlabel(xlabel)
     if ylabel is not None:
       ax.set_ylabel(ylabel)
+    if x_stick_labels is not None:
+      ax.xaxis.set_ticklabels(x_stick_labels)
     plt.show()
 
-  def draw_correlation(self, graph_key, flags=None, smooth=False,reverse=False,name=None,xlabel=None,ylabel=None):
+  def draw_correlation(self, graph_key, flags=None, smooth=False,reverse=False,name=None,xlabel=None,ylabel=None,color_bar=True,color_bar_label=None,vmin=None,vmax=None):
     # Gathering neurons
     if flags is None:
       neuron_list = xrange(len(self.neuron_list))
@@ -686,7 +695,11 @@ class Network():
     # Drawing the graph
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.imshow(correlation_matrix, interpolation="nearest")
+    img = ax.imshow(correlation_matrix, interpolation="nearest",vmax=vmax,vmin=vmin)
+    if color_bar:
+      color_bar = plt.colorbar(img)
+      if color_bar_label is not None:
+        color_bar.set_label(color_bar_label)
     if name is not None:
       plt.title(name)
     if xlabel is not None:

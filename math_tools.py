@@ -46,13 +46,13 @@ def correlation(list1, list2):
   m2 = float(sum(list2))/l2
 
   
-def histogram(list_list, witness=False,title=None,ylim=(0,1),xlim=(0,0.76),ylabel=None,stick_labels=None):
+def histogram(list_list, confidence_list=None,witness=False,title=None,ylim=(0,1),xlim=(0,0.76),ylabel=None,stick_labels=None):
   fig, ax = plt.subplots()
   if title is not None:
     fig.suptitle(title)
   width = 0.25
   ind = np.arange(len(list_list[0]))*(len(list_list)+1)*(width)
-  color = ((1,0,0), (1,1,0), (1,1,1), (1,0,1), (0,1,0), (0,1,1), (0,0.5,0.5), (0,0,1), (0.5,0,0), (0,0.5,0), (0,0,0.5))
+  color = ((0,0,0), (1,1,0), (1,1,1), (1,0,1), (0,1,0), (0,1,1), (0,0.5,0.5), (0,0,1), (0.5,0,0), (0,0.5,0), (0,0,0.5),(1,0,0))
 
   ax.set_xticks(ind+width*len(list_list)/2.)
   #ax.set_xticklabels( ('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW') )
@@ -71,8 +71,10 @@ def histogram(list_list, witness=False,title=None,ylim=(0,1),xlim=(0,0.76),ylabe
         ha='center', va='bottom')
 
 
+  if confidence_list is None:
+    confidence_list = map(lambda x : None, range(len(list_list)))
   for i in xrange(len(list_list)):
-    rects = ax.bar(ind + i*width, list_list[i], width, color=color[i%(len(color))])
+    rects = ax.bar(ind + i*width, list_list[i], width, color=color[i%(len(color))],yerr=confidence_list[i])
     #autolabel(rects)
 
   if witness:

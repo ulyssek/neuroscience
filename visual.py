@@ -52,6 +52,8 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     },
   }
 
+  CARD = ["l","N","NE","E","SE","S","SW","W","NW"]
+
   ##################################################################
   #Constants
 
@@ -67,6 +69,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     max_w_inhib         = constant[data]["max_w_inhib"]
     max_w_exci          = constant[data]["max_w_exci"]
 
+
   ##################################################################
   #Network creation
 
@@ -74,6 +77,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
 
   n = Network(time_window = time_window, save_data = save_data, noise_generator = noise_generator)
 
+  n.visual_constant = constant[data]
 
   for i in xrange(ex_neuron_number):
     n.add_neuron(flags=["receptive","exci"])
@@ -117,18 +121,17 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   n.add_graph(graph, name="all_weight")
   graph = lambda : n.draw_neuron_graph(["potential"], flags="receptive")
   n.add_graph(graph, name="stimulation")
-  graph = lambda : n.draw_correlation("firing_rate", flags="receptive", smooth=True, reverse=True,name="Correlation matrix",xlabel="Cell number",ylabel="Cell number")
+  graph = lambda : n.draw_correlation("firing_rate", flags="receptive", smooth=True, reverse=True,name="Correlation matrix",xlabel="Cell number",ylabel="Cell number",vmax=0.4,vmin=0)
   n.add_graph(graph, name="correlation")
-  graph = lambda : n.draw_weight(pre_list=n.get_neuron_id_from_flags("activator"),post_list=n.get_neuron_id_from_flags("receptive"),xlabel="Activator Neurons",ylabel="Inter Neurons",vmin=0,vmax=10,title="Connectivity Matrix : Activator Neurons to Inter Neurons",color_bar_label="Connection strength")
+  graph = lambda : n.draw_weight(pre_list=n.get_neuron_id_from_flags("activator"),post_list=n.get_neuron_id_from_flags("receptive"),xlabel="Activator Neurons",ylabel="Inter Neurons",vmin=0,vmax=10,title="Connectivity Matrix : Activator Neurons to Inter Neurons",color_bar_label="Connection strength",x_stick_labels=CARD)
   n.add_graph(graph, name="activator_connectivity")
-  graph = lambda : n.draw_weight(neuron_list=n.get_neuron_id_from_flags("receptive"),xlabel="Inter Neurons",ylabel="Inter Neurons",vmin=0,vmax=10,title="Connectivity Matrix : Inter Neurons",color_bar_label="Connection strengh")
+  graph = lambda : n.draw_weight(neuron_list=n.get_neuron_id_from_flags("receptive"),xlabel="Inter Neurons",ylabel="Inter Neurons",vmin=0,vmax=5,title="Connectivity Matrix : Inter Neurons",color_bar_label="Connection strengh")
   n.add_graph(graph, name="receptive_connectivity")
 
   ##################################################################
   #Experiments
 
   def experiment(trail_nb=nb_round,print_keeps=False,keep_flags=None,thr=0.5,draw=draw,**kwargs):
-    print trail_nb
     time_array = []
     for i in xrange(trail_nb):
       neuron_set = randint(0,nb_group-1)
@@ -194,11 +197,11 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
       n.clean_current(flags=["activator %s" % (neuron_set)])
       n.block_plasticity("plastic", block=False)
 
-  def exp_timer(**kwargs):
+  def exp_timer():#**kwargs):
     n.switch("classic")
     n.keep_connected(keep_name="stable", flags=["inter neuron","exci"])
     n.reinitialize_weights(flags=["inter neuron","exci"])
-    time_array = n.launch(print_keeps=True,keep_flags=["inter neuron", "exci"],**kwargs)
+    time_array = n.launch(print_keeps=True,keep_flags=["inter neuron", "exci"])#,**kwargs)
     n.switch("exp_time")
     return time_array
     
@@ -221,6 +224,19 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     for radar in i_radars:
       radar.plot(legend=False,fig_title="Connectivity Inhib")
 
+
+  def correlation():
+    n.switch("stimulate")
+    n.save_data(True)
+    n.clean_data()
+    n.launch()
+    n.draw("correlation")
+    n.switch("resting")
+    n.clean_data()
+    for i in xrange(100):
+      n.launch()
+    n.draw("correlation")
+
     
 
   n.add_mode(name="learning")
@@ -228,6 +244,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   n.add_mode(name="exp_time")
   n.add_mode(name="stim_radar")
   n.add_mode(name="similarity")
+  n.add_mode(name="correlation")
   n.set_experiment(experiment)
   n.switch("stimulate")
   n.set_experiment(stimulate)
@@ -237,6 +254,8 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   n.set_experiment(exp_timer)
   n.switch("similarity")
   n.set_experiment(similarity)
+  n.switch("correlation")
+  n.set_experiment(correlation)
   n.switch("learning")
   n.set_experiment(learning)
     
