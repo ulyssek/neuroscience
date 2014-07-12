@@ -131,21 +131,33 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
   ##################################################################
   #Experiments
 
-  def experiment(trail_nb=nb_round,print_keeps=False,keep_flags=None,thr=0.5,draw=draw,**kwargs):
+  def experiment(trail_nb=nb_round,print_keeps=False,keep_flags=None,thr=0.5,draw=draw,deep_keeps=False,count=False,**kwargs):
     time_array = []
     for i in xrange(trail_nb):
       neuron_set = randint(0,nb_group-1)
       n.impose_current_to_group(("activator %s" % (neuron_set)), current_function =  spike_function(10,random=True))
 
-      n.run(**kwargs)
-      if print_keeps:
+      if deep_keeps:
+        kwargs.update({
+          "print_keeps"   : True,
+          "keep_flags"    : keep_flags,
+          "compared_keep" : "stable",
+        })
+      result = n.run(**kwargs)
+      if deep_keeps:
+        time_array.extend(result)
+      elif print_keeps:
         n.keep_connected("relearning",True,flags=keep_flags)
         s = n.compare_keeps("relearning","stable")
         time_array.append(s)
+      
       n.clean_current()
+      if count and (not i % 100):
+        print "step %s" % (i,)
+        
     if draw:
       n.draw("all_weight")
-    if print_keeps:
+    if print_keeps or deep_keeps:
       return time_array
 
 
@@ -197,11 +209,11 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
       n.clean_current(flags=["activator %s" % (neuron_set)])
       n.block_plasticity("plastic", block=False)
 
-  def exp_timer():#**kwargs):
+  def exp_timer(trail_nb=nb_round,deep_keeps=False,count=False):#**kwargs):
     n.switch("classic")
     n.keep_connected(keep_name="stable", flags=["inter neuron","exci"])
     n.reinitialize_weights(flags=["inter neuron","exci"])
-    time_array = n.launch(print_keeps=True,keep_flags=["inter neuron", "exci"])#,**kwargs)
+    time_array = n.launch(trail_nb=trail_nb,print_keeps=( not deep_keeps),keep_flags=["inter neuron", "exci"],deep_keeps=deep_keeps,count=count)#,**kwargs)
     n.switch("exp_time")
     return time_array
     

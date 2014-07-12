@@ -102,10 +102,11 @@ class Network():
       "collect_data"   : [],
       }
 
-  def run(self, time_window = None):
+  def run(self, time_window = None,print_keeps=False,keep_flags=None,compared_keep=None):
     if time_window is None:
       time_window = self._time_window[self._mode]
     #ti = Timer()
+    time_array = []
     for t in xrange(int(time_window)):
 
       #ti.pick()
@@ -128,6 +129,11 @@ class Network():
       #ti.pick("collect data")
       #ti.save()
       #ti.clean()
+      if print_keeps:
+        self.keep_connected("relearning",True,flags=keep_flags)
+        s = self.compare_keeps("relearning",compared_keep)
+        time_array.append(s)
+    return time_array
     #ti.prnt(1)
 
   def launch(self, **kwargs):
