@@ -1,3 +1,0 @@
-pytools>=2013.5.2
-pytest>=2
-decorator>=3.2.0
