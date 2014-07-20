@@ -241,11 +241,12 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     n.switch("stimulate")
     n.save_data(True)
     n.clean_data()
-    n.launch()
+    for i in xrange(5):
+      n.launch()
     n.draw("correlation")
     n.switch("resting")
     n.clean_data()
-    for i in xrange(100):
+    for i in xrange(40):
       n.launch()
     n.draw("correlation")
 
