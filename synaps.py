@@ -3,10 +3,12 @@
 
 from __init__ import *
 
+import json
+
 
 class Synaps():
 
-  def __init__(self, post_neuron, pre_neuron, inhib = False, version = 1, weight=None, name = "Unamed synaps", synaps_multiplicator=1, plasticity = True):
+  def __init__(self, post_neuron, pre_neuron, inhib = False, version = 1, weight=None, name = "Unamed synaps", synaps_multiplicator=1, plasticity = True, identification = None):
 
     #CONFIG VAR
     self._firing_multiplicator     = 1
@@ -16,6 +18,7 @@ class Synaps():
     self._blocked                  = False
     self._synaps_multiplicator     = synaps_multiplicator
     self._plasticity               = plasticity
+    self.identification            = identification
 
     #CONSTANT
     self._delta_t = DELTA_T
@@ -121,6 +124,9 @@ class Synaps():
   def get_uref_square(self):
     return self._u_ref_square
 
+  def get_id(self):
+    return self.identification
+
   ##################################################################
   # UPDATE FUNCTIONS 
 
@@ -153,3 +159,27 @@ class Synaps():
 
   def block_plasticity(self, block=True):
     self._plasticity = block
+
+  ##################################################################
+  ## DUMPING FUNCTION
+
+  def to_dict(self):
+    dico = dict(self.__dict__)
+    dico["pre_neuron"]  = self.pre_neuron.get_id()
+    dico["post_neuron"] = self.post_neuron.get_id()
+    return dico
+
+  def to_json(self):
+    return json.dumps(self.to_dict())
+
+
+  def from_dict(self,dico):
+    for key in dico:
+      setattr(self,key,dico[key])
+    """
+    BE CAREFULL, the Network needs to finish the job by connecting neurons and synapses
+    """
+      
+  def from_json(self,js):
+    self.from_dict(json.loads(js))
+

@@ -2,6 +2,7 @@
 
 from network import *
 from noise_generator import *
+from current import Current 
 from random import randint
 from math_tools import *
 
@@ -135,7 +136,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     time_array = []
     for i in xrange(trail_nb):
       neuron_set = randint(0,nb_group-1)
-      n.impose_current_to_group(("activator %s" % (neuron_set)), current_function =  spike_function(10,random=True))
+      n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = Current(5))
 
       if deep_keeps:
         kwargs.update({
@@ -172,7 +173,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
     #n.set_noise(False)
     for i in xrange(int(4*nb_round)):
       neuron_set = randint(0,nb_group-1)
-      n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = spike_function(10))
+      n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = Current(3))
       n.run()
       n.clean_current()
     n.block_synaps("plastic", block=False)
@@ -204,7 +205,7 @@ def visual_network(save_data=False, nb_round=500, time_window=pow(10,2), data="c
         pass
     else:
       n.block_plasticity("plastic")
-      n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = spike_function(10))
+      n.impose_current_to_group(("activator %s" % (neuron_set)), current_function = Current(3))
       n.run()
       n.clean_current(flags=["activator %s" % (neuron_set)])
       n.block_plasticity("plastic", block=False)

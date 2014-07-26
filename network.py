@@ -11,6 +11,7 @@ from neuron           import Neuron
 from fake_neuron      import FakeNeuron
 from synaps           import Synaps
 from noise_generator  import NoiseGenerator
+from current          import Current
 import math_tools
 
 
@@ -36,9 +37,9 @@ class Network():
 
     #CONSTANTS
     self._default_current_functions = []
-    self._default_current_functions.append(lambda x : 9.5*pow(10,2))
-    self._default_current_functions.append(lambda x : 9.5*pow(10,2) if x > 5 else 0)
-    self._default_current_functions.append(lambda x : 10 if (x % 100 == 0) else 0)
+    self._default_current_functions.append(Current(1))
+    self._default_current_functions.append(Current(2))
+    self._default_current_functions.append(Current(3))
     self._time_window   =  {"classic":time_window,"resting":time_window} # number of time step wich will be executed [step]
     
     #CLASS VARIABLES
@@ -69,30 +70,9 @@ class Network():
     #DATA
     self.neuron_data   = []    # List of neuron_function dictionary. All the dictionary will contain every single data
     self.synaps_data   = []
-    self.neuron_functions   = {
-        "potential"                 : Neuron.get_potential,
-        "leak_current"              : Neuron.get_leak_current,
-        "threshold"                 : Neuron.get_threshold,
-        "hyperpolarisation_current" : Neuron.get_hyperpolarization_current,
-        "exponential_thing"         : Neuron.get_exponential_thing,
-        "received_current"          : Neuron.get_received_current,
-        "firing_rate"               : Neuron.get_firing_rate,
-        "u_minus"                   : Neuron.get_u_minus,
-        "u_plus"                    : Neuron.get_u_plus,
-        "x"                         : Neuron.get_x,
-        "u_barbar"                  : Neuron.get_u_barbar,
-        }
-    self.synaps_functions  = {
-        "weight"          : Synaps.get_weight,
-        "current"         : Synaps.get_current,
-        "u_minus"         : Synaps.get_u_minus,
-        "u_plus"          : Synaps.get_u_plus,
-        "x"               : Synaps.get_x,
-        "post_potential"  : Synaps.get_post_synaptic_potential,
-        "dw_plus"         : Synaps.get_dw_plus,
-        "dw_minus"        : Synaps.get_dw_minus,
-        "u_barbar"        : Synaps.get_u_barbar,
-      }
+    self.neuron_functions = self.get_neuron_functions() 
+    self.synaps_functions = self.get_synaps_functions()
+
     self.spike_number  = []
 
     #ANALYTICS VAR
@@ -297,7 +277,37 @@ class Network():
       raise Exception("Come on, dude, you have to pick up some neurons")
     avg_fr = numpy.average(map(lambda x : self.neuron_data[x]["firing_rate"][-1], neurons)) 
     return avg_fr
-    
+ 
+  def get_neuron_functions(self):
+    result = {
+      "potential"                 : Neuron.get_potential,
+      "leak_current"              : Neuron.get_leak_current,
+      "threshold"                 : Neuron.get_threshold,
+      "hyperpolarisation_current" : Neuron.get_hyperpolarization_current,
+      "exponential_thing"         : Neuron.get_exponential_thing,
+      "received_current"          : Neuron.get_received_current,
+      "firing_rate"               : Neuron.get_firing_rate,
+      "u_minus"                   : Neuron.get_u_minus,
+      "u_plus"                    : Neuron.get_u_plus,
+      "x"                         : Neuron.get_x,
+      "u_barbar"                  : Neuron.get_u_barbar,
+      }
+    return result
+
+  def get_synaps_functions(self):
+    result = {
+      "weight"          : Synaps.get_weight,
+      "current"         : Synaps.get_current,
+      "u_minus"         : Synaps.get_u_minus,
+      "u_plus"          : Synaps.get_u_plus,
+      "x"               : Synaps.get_x,
+      "post_potential"  : Synaps.get_post_synaptic_potential,
+      "dw_plus"         : Synaps.get_dw_plus,
+      "dw_minus"        : Synaps.get_dw_minus,
+      "u_barbar"        : Synaps.get_u_barbar,
+    }
+    return result
+ 
   ##################################################################
   # OTHER FUNCTIONS
 
@@ -337,8 +347,8 @@ class Network():
   # ADDING NEURONS AND SYNAPS TO THE NETWORK 
 
   @classmethod
-  def connect_neurons(cls, post_neuron, pre_neuron,weight, name=None, synaps_multiplicator=1, plasticity = True):
-    synaps     = Synaps(post_neuron, pre_neuron, version = 2, weight = weight, name=name, inhib=pre_neuron.get_inhib(), synaps_multiplicator=synaps_multiplicator, plasticity = plasticity)
+  def connect_neurons(cls, post_neuron, pre_neuron,weight, name=None, synaps_multiplicator=1, plasticity = True,synaps_id=None):
+    synaps     = Synaps(post_neuron, pre_neuron, version = 2, weight = weight, name=name, inhib=pre_neuron.get_inhib(), synaps_multiplicator=synaps_multiplicator, plasticity = plasticity,identification=synaps_id)
     post_neuron.add_pre_synaps(synaps)
     pre_neuron.add_post_synaps(synaps)
 
@@ -366,7 +376,7 @@ class Network():
         weight = normal(1500,1200)*0.5/1500 
       else:
         weight = weight
-      synaps = Network.connect_neurons(self.neuron_list[id1],self.neuron_list[id2],weight=weight,name="Synaps number %s, connecting neuron %s and %s " % (synaps_id,id1,id2), synaps_multiplicator=synaps_multiplicator, plasticity = plasticity)
+      synaps = Network.connect_neurons(self.neuron_list[id1],self.neuron_list[id2],weight=weight,name="Synaps number %s, connecting neuron %s and %s " % (synaps_id,id1,id2), synaps_multiplicator=synaps_multiplicator, plasticity = plasticity,synaps_id=synaps_id)
       self.synaps_list.append(synaps)
       dico = self.get_synaps_dict()
       self.synaps_data.append(dico)
@@ -435,7 +445,7 @@ class Network():
       self.print_error_message()
       return
     if current_function is None:
-      current_function = self._default_current_functions[current_id]
+      current_function = Current(current_id)
     self.neuron_input_list[self._mode][neuron_id] = current_function
   
   def impose_current_to_group(self, flag, current_id = 1, current_function = None):
@@ -558,11 +568,11 @@ class Network():
   def clean_current(self, flags=None):
     if flags is None:
       for key in xrange(len(self.neuron_input_list[self._mode])):
-        self.neuron_input_list[self._mode][key] = (lambda x : 0) 
+        self.neuron_input_list[self._mode][key] = Current(4) 
     else:
       neuron_list = self.get_neuron_id_from_flags(flags)
       for neuron in neuron_list:
-        self.neuron_input_list[self._mode][neuron] = (lambda x : 0)
+        self.neuron_input_list[self._mode][neuron] = Current(4)
 
   def clean_data(self, neuron=True, synaps=True):
     if neuron:
@@ -572,6 +582,15 @@ class Network():
       for i in xrange(self.get_synaps_number()):
         self.synaps_data[i] = self.get_synaps_dict()
 
+  ##################################################################
+  # DUMPING FUNCTIONS
+
+  def to_dict(self):
+    dico = dict(self.__dict__)
+    dico["synaps_list"] = map(lambda x : x.get_id(), dico["synaps_list"])
+    dico["neuron_list"] = map(lambda x : x.get_id(), dico["neuron_list"])
+    return dico
+    
 
   ##################################################################
   # DRAWING FUNCTIONS

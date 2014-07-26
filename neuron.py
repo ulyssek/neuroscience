@@ -5,9 +5,11 @@ from __init__ import *
 from timer import Timer
 from time import sleep
 
+import json
+
 class Neuron(object):
 
-  def __init__(self, version = 1, name = "Not named neuron", passive = False, neuron_number = 1, identification = None, inhib = False):
+  def __init__(self, version = 1, name = "Not named neuron", passive = False, neuron_number = 1, identification = None, inhib = False,from_json=None):
 
     ###################################################################
 
@@ -76,12 +78,17 @@ class Neuron(object):
     self._post_synaps_list                 = []
     self._pre_synaps_list                  = []
     self._pre_synaps_correspondence_list   = {}
+    self._post_synaps_correspondence_list  = {}
     
 
     #CLAUDIA CLASS VARS
     self.wad    = 0     # hyperpolarization current [pA]
     self.z      = 0     # leak current [pA]
-    self.VT     = 10    # threshold potential [mV]
+    self.VT     = 10    # threshold potential [mV]o
+    
+    #FROM DICT
+    if from_json is not None:
+      self.json_to_neuron(from_json)
 
   def run(self, current = 0, spike = False):
     self._fired = 0
@@ -113,6 +120,7 @@ class Neuron(object):
   
   def add_post_synaps(self, synaps):
     self._post_synaps_list.append(synaps)
+    self._post_synaps_correspondence_list[synaps.get_post_neuron().get_id()] = synaps
 
   def __str__(self):
     return self.name
@@ -273,3 +281,32 @@ class Neuron(object):
     self.potential   = self.Vf # Claudia constant... what is this ?? [mV]
     self._state   = 1
 
+ 
+  ##################################################################
+  ## DUMPING FUNCTIONS
+
+  def to_dict(self):
+    dico = dict(self.__dict__)
+    dico["_pre_synaps_list"]                  = map(lambda x : x.get_id(),dico["_pre_synaps_list"])
+    dico["_post_synaps_list"]                 = map(lambda x : x.get_id(),dico["_post_synaps_list"])
+    key = "_pre_synaps_correspondence_list"
+    for neuron in dico[key]:
+      dico[key][neuron] = dico[key][neuron].get_id()
+    key = "_post_synaps_correspondence_list"
+    for neuron in dico[key]:
+      dico[key][neuron] = dico[key][neuron].get_id()
+    return dico
+
+  def to_json(self):
+    return json.dumps(self.neuron_to_dict())
+
+  def dict_to_neuron(self,dico):
+    for key in dico.keys():
+      setattr(self, key, dico[key])
+    """
+    BE CAREFULL, the Network needs to finish the job by connecting neurons and synapses
+    """
+
+  def json_to_neuron(self,json_dict):
+    self.dict_to_neuron(json.loads(json_dict))
+    
