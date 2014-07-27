@@ -440,7 +440,7 @@ class Network():
         self.neuron_flag_dict[flag].append(neuron_id)
     return neuron_id
 
-  def impose_current(self, neuron_id, current_id = 1, current_function = None):
+  def impose_current(self, neuron_id, current_id = 2, current_function = None):
     if not self.valid_id(neuron_id): 
       self.print_error_message()
       return
