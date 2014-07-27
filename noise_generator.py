@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 
+from current import Current
+
 from math import *
 from __init__ import *
 from numpy.random import normal, poisson
@@ -27,7 +29,7 @@ class NoiseGenerator():
 
 def noisy_current_function(intensity = 8*pow(10,2)):
   if intensity == 0:
-    return lambda x : 0
-  return lambda x : normal(intensity, intensity/2.)
+    return Current(0,**{"intensity":0})
+  return Current(2,**{"intensity":intensity})
 
 

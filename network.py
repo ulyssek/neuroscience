@@ -37,9 +37,9 @@ class Network():
 
     #CONSTANTS
     self._default_current_functions = []
-    self._default_current_functions.append(Current(1))
-    self._default_current_functions.append(Current(2))
-    self._default_current_functions.append(Current(3))
+    self._default_current_functions.append(Current(0))
+    self._default_current_functions.append(Current(0,**{"phase":5}))
+    self._default_current_functions.append(Current(1,**{"intensity":10}))
     self._time_window   =  {"classic":time_window,"resting":time_window} # number of time step wich will be executed [step]
     
     #CLASS VARIABLES
@@ -440,7 +440,7 @@ class Network():
         self.neuron_flag_dict[flag].append(neuron_id)
     return neuron_id
 
-  def impose_current(self, neuron_id, current_id = 2, current_function = None):
+  def impose_current(self, neuron_id, current_id = 0, current_function = None):
     if not self.valid_id(neuron_id): 
       self.print_error_message()
       return
@@ -448,7 +448,7 @@ class Network():
       current_function = Current(current_id)
     self.neuron_input_list[self._mode][neuron_id] = current_function
   
-  def impose_current_to_group(self, flag, current_id = 2, current_function = None):
+  def impose_current_to_group(self, flag, current_id = 0, current_function = None):
     for neuron_id in self.neuron_flag_dict[flag]:
       self.impose_current(neuron_id, current_id = current_id, current_function = current_function)
 
@@ -568,11 +568,11 @@ class Network():
   def clean_current(self, flags=None):
     if flags is None:
       for key in xrange(len(self.neuron_input_list[self._mode])):
-        self.neuron_input_list[self._mode][key] = Current(4) 
+        self.neuron_input_list[self._mode][key] = Current(0,**{"intensity":0}) 
     else:
       neuron_list = self.get_neuron_id_from_flags(flags)
       for neuron in neuron_list:
-        self.neuron_input_list[self._mode][neuron] = Current(4)
+        self.neuron_input_list[self._mode][neuron] = Current(0,**{"intensity":0})
 
   def clean_data(self, neuron=True, synaps=True):
     if neuron:
