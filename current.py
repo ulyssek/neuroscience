@@ -35,6 +35,7 @@ class Current():
       "3" : spiking_current(intensity=10),              #SPIKING DEFAULT CURRENT
       "4" : constant_current(intensity=0),             #NULL CURRENT
       "5" : spiking_current(intensity=10,random=True), #RANDOM SPIKING CURRENT
+      "6" : spiking_current(10)                        #HIGH SPIKING FUNCTION
     }
 
     ##################################################################
