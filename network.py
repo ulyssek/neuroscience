@@ -448,7 +448,7 @@ class Network():
       current_function = Current(current_id)
     self.neuron_input_list[self._mode][neuron_id] = current_function
   
-  def impose_current_to_group(self, flag, current_id = 1, current_function = None):
+  def impose_current_to_group(self, flag, current_id = 2, current_function = None):
     for neuron_id in self.neuron_flag_dict[flag]:
       self.impose_current(neuron_id, current_id = current_id, current_function = current_function)
 
